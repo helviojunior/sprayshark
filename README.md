@@ -9,12 +9,13 @@ Available modules:
 
 ## Some amazing features
 
-* [x] You can stop and resume anytime
-* [x] Control user/password that already tested
-* [x] Control if already tested user does not exists
-* [x] Multi threading
-* [x] Save screenshots of valid authentications
-* [x] Much more...
+* [x] Pause and resume testing at any time.  
+* [x] Manage and track tested user/password combinations.  
+* [x] Ensure users are not tested multiple times.  
+* [x] Utilize multi-threading for faster performance.  
+* [x] Save screenshots of successful authentications.  
+* [x] And much more!  
+
 
 # Build
 
