@@ -41,6 +41,7 @@ multiple writers using the _--writer-*_ flags (see --help).
    - sprayshark spray -u test@helviojunior.com.br -p Test@123 --write-jsonl
    - sprayshark spray -U emails.txt -p Test@123 --save-content --write-db
    - sprayshark spray -U emails.txt -P passwords.txt
+   - sprayshark spray -U emails.txt -P passwords.txt --proxy socks4://127.0.0.1:1337 --write-all-screenshots
    - cat targets.txt | sprayshark spray usernames - -p Test@123 --write-db --write-jsonl`,
     PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
         var err error

@@ -76,6 +76,7 @@ Examples:
    - sprayshark spray -u test@helviojunior.com.br -p Test@123 --write-jsonl
    - sprayshark spray -U emails.txt -p Test@123 --save-content --write-db
    - sprayshark spray -U emails.txt -P passwords.txt
+   - sprayshark spray -U emails.txt -P passwords.txt --proxy socks4://127.0.0.1:1337 --write-all-screenshots
    - cat targets.txt | sprayshark spray usernames - -p Test@123 --write-db --write-jsonl
 
 Flags:
@@ -91,16 +92,16 @@ Flags:
       --log-scan-errors            Log scan errors (timeouts, DNS errors, etc.) to stderr (warning: can be verbose!)
   -p, --password string            Single password
   -P, --passwords string           File containing passwords
-      --save-content               Save content from network requests to the configured writers. WARNING: This flag has the potential to make your storage explode in size
+      --save-html                  Include the result request's HTML response when writing results
       --screenshot-format string   Format to save screenshots as. Valid formats are: jpeg, png (default "jpeg")
       --screenshot-fullpage        Do full-page screenshots, instead of just the viewport
   -s, --screenshot-path string     Path to store screenshots (default "./screenshots")
       --screenshot-skip-save       Do not save screenshots to the screenshot-path (useful together with --write-screenshots)
-      --skip-html                  Don't include the first request's HTML response when writing results
   -t, --threads int                Number of concurrent threads (goroutines) to use (default 6)
   -T, --timeout int                Number of seconds before considering a page timed out (default 60)
   -u, --username string            Single username
   -U, --usernames string           File containing usernames
+      --write-all-screenshots      Store all result screenshots to filesystem storage
       --write-csv                  Write results as CSV (has limited columns)
       --write-csv-file string      The file to write CSV rows to (default "sprayshark.csv")
       --write-db                   Write results to a SQLite database
