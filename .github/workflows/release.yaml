@@ -30,16 +30,12 @@ jobs:
           ldflags: |
             -s -w \
             -X=github.com/helviojunior/sprayshark/internal/version.Version=${{ github.event.release.tag_name }} \
-            -X=github.com/helviojunior/sprayshark/internal/version.GitHash=${{ GITHASH }} \
-            -X=github.com/helviojunior/sprayshark/internal/version.GoBuildEnv=${{ BUILDENV }} \
-            -X=github.com/helviojunior/sprayshark/internal/version.GoBuildTime=${{ BUILDTIME }}
+            -X=github.com/helviojunior/sprayshark/internal/version.GitHash=$GITHASH \
+            -X=github.com/helviojunior/sprayshark/internal/version.GoBuildEnv=$BUILDENV \
+            -X=github.com/helviojunior/sprayshark/internal/version.GoBuildTime=$BUILDTIME
           pre_command: |
             GITHASH=$(git rev-parse --short HEAD)
             BUILDENV=$(go version | cut -d' ' -f 3,4 | sed 's/ /_/g')
             BUILDTIME=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
-
-            echo "GITHASH=$GITHASH" >> $GITHUB_ENV
-            echo "BUILDENV=$BUILDENV" >> $GITHUB_ENV
-            echo "BUILDTIME=$BUILDTIME" >> $GITHUB_ENV
 
 
