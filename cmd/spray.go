@@ -10,6 +10,7 @@ import (
     "github.com/helviojunior/sprayshark/internal/islazy"
     "github.com/helviojunior/sprayshark/pkg/log"
     "github.com/helviojunior/sprayshark/pkg/runner"
+    "github.com/helviojunior/sprayshark/pkg/database"
     driver "github.com/helviojunior/sprayshark/pkg/runner/drivers"
     "github.com/helviojunior/sprayshark/pkg/writers"
     "github.com/helviojunior/sprayshark/pkg/readers"
@@ -189,13 +190,31 @@ multiple writers using the _--writer-*_ flags (see --help).
             }
         }()
 
+        // Check runned items
+        conn, _ := database.Connection("sqlite://" + opts.Writer.UserPath +"/.sprayshark.db", true, false)
+
         go func() {
             defer close(scanRunner.Targets)
             for p := range passwords {
                 for u := range users {
-                    scanRunner.Targets <- runner.Credential{
-                        Username: u,
-                        Password: p,
+
+                    i := true
+                    if conn != nil {
+                        response := conn.Raw("SELECT count(id) as count from results WHERE failed = 0 AND user = ? AND password = ?", u, p)
+                        if response != nil {
+                            var cnt int
+                            _ = response.Row().Scan(&cnt)
+                            i = (cnt == 0)
+                        }
+                    }
+
+                    if i {
+                        scanRunner.Targets <- runner.Credential{
+                            Username: u,
+                            Password: p,
+                        }
+                    }else{
+                        log.Info("[already tested]", "user", u, "pass", p)
                     }
                 }
             }
