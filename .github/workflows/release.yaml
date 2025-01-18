@@ -34,9 +34,9 @@ jobs:
             -X=github.com/helviojunior/sprayshark/internal/version.GoBuildEnv=$(cat /tmp/buildenv.txt) \
             -X=github.com/helviojunior/sprayshark/internal/version.GoBuildTime=$(cat /tmp/buildtime.txt)
           pre_command: |
-            echo "${{ github.event.release.tag_name }}" | grep -oE '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' > /tmp/version.txt
-            git rev-parse --short HEAD > /tmp/githash.txt
-            go version | cut -d' ' -f 3,4 | sed 's/ /_/g' > /tmp/buildenv.txt
-            date -u +'%Y-%m-%dT%H:%M:%SZ' > /tmp/buildtime.txt
+            echo "${{ github.event.release.tag_name }}" | grep -oE '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' > /tmp/version.txt;
+            git rev-parse --short HEAD > /tmp/githash.txt;
+            go version | cut -d' ' -f 3,4 | sed 's/ /_/g' > /tmp/buildenv.txt;
+            date -u +'%Y-%m-%dT%H:%M:%SZ' > /tmp/buildtime.txt;
 
 
