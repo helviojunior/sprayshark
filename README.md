@@ -1,6 +1,6 @@
 # SprayShark
 
-SprayShark is a modular password sprayer with threading! 
+SprayShark is a modular G-Suite password sprayer with threading! 
 
 Available modules:
 
