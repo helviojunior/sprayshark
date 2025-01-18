@@ -205,6 +205,20 @@ multiple writers using the _--writer-*_ flags (see --help).
                             var cnt int
                             _ = response.Row().Scan(&cnt)
                             i = (cnt == 0)
+                            if cnt >= 0 {
+                                log.Info("[already tested, same password]", "user", u, "pass", p)
+                            }
+                        }
+                        if i {
+                            response := conn.Raw("SELECT count(id) as count from results WHERE failed = 0 AND user = ? AND user_exists = 0", u)
+                            if response != nil {
+                                var cnt int
+                                _ = response.Row().Scan(&cnt)
+                                i = (cnt == 0)
+                                if cnt >= 0 {
+                                    log.Info("[already tested, user not found]", "user", u)
+                                }
+                            }
                         }
                     }
 
@@ -213,8 +227,6 @@ multiple writers using the _--writer-*_ flags (see --help).
                             Username: u,
                             Password: p,
                         }
-                    }else{
-                        log.Info("[already tested]", "user", u, "pass", p)
                     }
                 }
             }
