@@ -330,6 +330,33 @@ func (run *Chromedp) Check(username string, password string, thisRunner *runner.
 			DoFinal(run, navigationCtx, username, result)
 			return result, nil
 		}
+		if strings.Contains(html, "Which account do you want to use") == true {
+			result.UserExists = true
+			//DoFinal(run, navigationCtx, username, result)
+			//return result, nil
+
+			logger.Debug("Multiple account found!")
+
+			// TODO try to click at button
+			err = chromedp.Run(navigationCtx, chromedp.Tasks {
+					chromedp.Click(`//*[contains(text(), "account owned by")]`, chromedp.BySearch),
+				},
+			)
+			if err != nil {
+				logger.Debug("Error selecting corporate account", "err", err)
+				result.Failed = true
+				result.FailedReason = err.Error()
+				DoFinal(run, navigationCtx, username, result)
+				return result, nil
+			}
+			time.Sleep(time.Duration(5) * time.Second)
+			if err := chromedp.Run(navigationCtx, chromedp.OuterHTML(":root", &html, chromedp.ByQueryAll)); err != nil {
+				result.Failed = true
+				result.FailedReason = err.Error()
+				DoFinal(run, navigationCtx, username, result)
+				return result, nil
+			}
+		}
 
 		//if strings.Contains(html, "Type the text you hear or see") == true {
 		//	result.Failed = true
@@ -457,13 +484,6 @@ func (run *Chromedp) Check(username string, password string, thisRunner *runner.
 			DoFinal(run, navigationCtx, username, result)
 			return result, nil
 		}
-		if strings.Contains(html, "Type the text you hear or see") == true {
-			result.Failed = true
-			result.FailedReason = "Captcha found"
-			DoFinal(run, navigationCtx, username, result)
-			return result, nil
-		}
-
 		if strings.Contains(html, "really you trying to sign") == true {
 			result.UserExists = true
 			result.ValidCredential = true
