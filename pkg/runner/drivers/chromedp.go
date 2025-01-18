@@ -154,9 +154,9 @@ func DoFinal(run *Chromedp, navigationCtx context.Context, username string, resu
 		}
 	}
 
-	//if !result.UserExists && !result.ValidCredential {
-	//	return
-	//}
+	if !result.UserExists && !result.ValidCredential {
+		return
+	}
 
 	// grab a screenshot
 	var img []byte
