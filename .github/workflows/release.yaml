@@ -27,11 +27,13 @@ jobs:
           GITHASH=$(git rev-parse --short HEAD)
           BUILDENV=$(go version | cut -d' ' -f 3,4 | sed 's/ /_/g')
           BUILDTIME=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
+          LDFLAGS="-s -w \
+            -X=github.com/helviojunior/sprayshark/internal/version.Version=$VER \
+            -X=github.com/helviojunior/sprayshark/internal/version.GitHash=$GITHASH \
+            -X=github.com/helviojunior/sprayshark/internal/version.GoBuildEnv=$BUILDENV \
+            -X=github.com/helviojunior/sprayshark/internal/version.GoBuildTime=$BUILDTIME"
 
-          echo "VER=$VER" >> $GITHUB_OUTPUT
-          echo "GITHASH=$GITHASH" >> $GITHUB_OUTPUT
-          echo "BUILDENV=$BUILDENV" >> $GITHUB_OUTPUT
-          echo "BUILDTIME=$BUILDTIME" >> $GITHUB_OUTPUT
+          echo "LDFLAGS=$LDFLAGS" >> $GITHUB_OUTPUT
 
       - uses: wangyoucao577/go-release-action@v1.33
         with:
@@ -39,10 +41,5 @@ jobs:
           goos: ${{ matrix.goos }}
           goarch: ${{ matrix.goarch }}
           goversion: "https://dl.google.com/go/go1.23.5.linux-amd64.tar.gz"
-          build_flags: |
-            -ldflags="-s -w \
-            -X=github.com/helviojunior/sprayshark/internal/version.Version=${{ steps.vars.outputs.VER }} \
-            -X=github.com/helviojunior/sprayshark/internal/version.GitHash=${{ steps.vars.outputs.GITHASH }} \
-            -X=github.com/helviojunior/sprayshark/internal/version.GoBuildEnv=${{ steps.vars.outputs.BUILDENV }} \
-            -X=github.com/helviojunior/sprayshark/internal/version.GoBuildTime=${{ steps.vars.outputs.BUILDTIME }}"
+          ldflags: ${{ steps.vars.outputs.LDFLAGS }}
 
