@@ -208,7 +208,7 @@ multiple writers using the _--writer-*_ flags (see --help).
                             _ = response.Row().Scan(&cnt)
                             i = (cnt == 0)
                             if cnt >= 0 {
-                                log.Info("[already tested, same password]", "user", u, "pass", p)
+                                log.Debug("[already tested, same password]", "user", u, "pass", p)
                             }
                         }
                         if i {
@@ -218,7 +218,7 @@ multiple writers using the _--writer-*_ flags (see --help).
                                 _ = response.Row().Scan(&cnt)
                                 i = (cnt == 0)
                                 if cnt >= 0 {
-                                    log.Info("[already tested, user not found]", "user", u)
+                                    log.Debug("[already tested, user not found]", "user", u)
                                 }
                             }
                         }
