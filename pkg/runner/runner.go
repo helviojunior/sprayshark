@@ -54,11 +54,29 @@ type Status struct {
 	Valid int
 	Error int
 	Skipped int
+	Label string
 }
 
 func (st *Status) Print() { 
-    fmt.Fprintf(os.Stderr, "\n    %d/%d, valid %d, exists %d, not found %d, errors %d, skipped %d\r\033[A", 
-    	st.Tested, st.Total, st.Valid, st.UserExists, st.NotFound, st.Error, st.Skipped)
+	switch st.Label {
+		case "[=====]":
+            st.Label = "[ ====]"
+        case  "[ ====]":
+            st.Label = "[  ===]"
+        case  "[  ===]":
+            st.Label = "[=  ==]"
+        case "[=  ==]":
+            st.Label = "[==  =]"
+        case  "[==  =]":
+            st.Label = "[===  ]"
+        case "[===  ]":
+            st.Label = "[==== ]"
+        default:
+            st.Label = "[=====]"
+	}
+	fmt.Fprintf(os.Stderr, "%s\n    %s %d/%d, valid %d, exists %d, not found %d, errors %d, skipped %d\r\033[A", 
+    	"                                                                                           ",
+    	st.Label, st.Tested, st.Total, st.Valid, st.UserExists, st.NotFound, st.Error, st.Skipped)
 } 
 
 func (st *Status) AddResult(result *models.Result) { 
@@ -126,6 +144,7 @@ func NewRunner(logger *slog.Logger, driver Driver, opts Options, writers []write
 			Error: 0,
 			Skipped: 0,
 			NotFound: 0,
+			Label: "[=====]",
 		},
 	}, nil
 }
@@ -173,7 +192,7 @@ func (run *Runner) Run(total int) {
 						return
 					default:
 			        	run.status.Print()
-			        	time.Sleep(1 * time.Second)
+			        	time.Sleep(time.Duration(time.Second/2))
 			    }
 	        }
 	    }()
