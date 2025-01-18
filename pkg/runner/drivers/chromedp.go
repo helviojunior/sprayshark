@@ -146,7 +146,7 @@ func DoFinal(run *Chromedp, navigationCtx context.Context, username string, resu
 	logger.Debug("Result ", "Found", result.ValidCredential, "UserExists", result.UserExists, "Failed", result.Failed, "FailedReason", result.FailedReason)
 
 	// get html
-	if !run.options.Scan.SkipHTML {
+	if run.options.Scan.SaveHTML {
 		if err := chromedp.Run(navigationCtx, chromedp.OuterHTML(":root", &result.HTML, chromedp.ByQueryAll)); err != nil {
 			if run.options.Logging.LogScanErrors {
 				logger.Error("could not get page html", "err", err)

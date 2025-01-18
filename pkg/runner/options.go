@@ -84,8 +84,8 @@ type Scan struct {
     // UriFilter are URI's that are okay to process. This should normally
     // be http and https
     UriFilter []string
-    // Don't write HTML response content
-    SkipHTML bool
+    // write HTML response content
+    SaveHTML bool
     // ScreenshotPath is the path where screenshot images will be stored.
     // An empty value means drivers will not write screenshots to disk. In
     // that case, you'd need to specify writer saves.
@@ -98,12 +98,6 @@ type Scan struct {
     ScreenshotToWriter bool
     // ScreenshotSkipSave skips saving screenshots to disk
     ScreenshotSkipSave bool
-    // JavaScript to evaluate on every page
-    JavaScript     string
-    JavaScriptFile string
-    // Save content stores content from network requests (warning) this
-    // could make written artefacts huge
-    SaveContent bool
 
 }
 
