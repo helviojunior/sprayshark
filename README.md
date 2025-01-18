@@ -12,13 +12,22 @@ Available modules:
 Clone the repository and build the project with Golang:
 
 ```
-$ git clone https://github.com/helviojunior/sprayshark.git
-$ cd sprayshark
-$ go get ./...
-$ go build
+git clone https://github.com/helviojunior/sprayshark.git
+cd sprayshark
+go get ./...
+go build
 ```
 
 If you want to update go.sum file just run the command `go mod tidy`.
+
+# Installing system wide
+
+After build run the commands bellow
+
+```
+go install .
+ln -s /root/go/bin/sprayshark /usr/bin/sprayshark
+```
 
 ### Note
 
