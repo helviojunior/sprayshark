@@ -20,15 +20,27 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
+      - name: Get OS and arch info
+        run: |
+          GITHASH=$(git rev-parse --short HEAD)
+          BUILDENV=$(go version | cut -d' ' -f 3,4 | sed 's/ /_/g')
+          BUILDTIME=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
+
+          echo "GITHASH=$GITHASH" >> $GITHUB_ENV
+          echo "BUILDENV=$BUILDENV" >> $GITHUB_ENV
+          echo "BUILDTIME=$BUILDTIME" >> $GITHUB_ENV
+
       - uses: wangyoucao577/go-release-action@v1.33
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           goos: ${{ matrix.goos }}
           goarch: ${{ matrix.goarch }}
           goversion: "https://dl.google.com/go/go1.23.5.linux-amd64.tar.gz"
+          build_flags: "-trimpath"
           ldflags: |
             -s -w \
             -X=github.com/helviojunior/sprayshark/internal/version.Version=${{ github.event.release.tag_name }} \
-            -X=github.com/helviojunior/sprayshark/internal/version.GitHash=$(git rev-parse --short HEAD) \
-            -X=github.com/helviojunior/sprayshark/internal/version.GoBuildEnv=$(go version | cut -d' ' -f 3,4 | sed 's/ /_/g') \
-            -X=github.com/helviojunior/sprayshark/internal/version.GoBuildTime=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
+            -X=github.com/helviojunior/sprayshark/internal/version.GitHash=${{ GITHASH }} \
+            -X=github.com/helviojunior/sprayshark/internal/version.GoBuildEnv=${{ BUILDENV }} \
+            -X=github.com/helviojunior/sprayshark/internal/version.GoBuildTime=${{ BUILDTIME }}
+
