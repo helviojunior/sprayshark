@@ -50,14 +50,15 @@ type Status struct {
 	Total int
 	Tested int
 	UserExists int
+	NotFound int
 	Valid int
 	Error int
 	Skipped int
 }
 
 func (st *Status) Print() { 
-    fmt.Fprintf(os.Stderr, "\n    %d/%d, valid %d, exists %d, errors %d, skipped %d\r\033[A", 
-    	st.Tested, st.Total, st.Valid, st.UserExists, st.Error, st.Skipped)
+    fmt.Fprintf(os.Stderr, "\n    %d/%d, valid %d, exists %d, not found %d, errors %d, skipped %d\r\033[A", 
+    	st.Tested, st.Total, st.Valid, st.UserExists, st.NotFound, st.Error, st.Skipped)
 } 
 
 func (st *Status) AddResult(result *models.Result) { 
@@ -77,7 +78,7 @@ func (st *Status) AddResult(result *models.Result) {
 		st.UserExists += 1
 		return
 	}
-	st.UserExists += 1
+	st.NotFound += 1
 } 
 
 
@@ -124,6 +125,7 @@ func NewRunner(logger *slog.Logger, driver Driver, opts Options, writers []write
 			Valid: 0,
 			Error: 0,
 			Skipped: 0,
+			NotFound: 0,
 		},
 	}, nil
 }

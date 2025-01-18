@@ -325,6 +325,11 @@ func (run *Chromedp) Check(username string, password string, thisRunner *runner.
 			DoFinal(run, navigationCtx, username, result)
 			return result, nil
 		}
+		if strings.Contains(html, "Enter a valid email") == true {
+			result.UserExists = false
+			DoFinal(run, navigationCtx, username, result)
+			return result, nil
+		}
 
 		//if strings.Contains(html, "Type the text you hear or see") == true {
 		//	result.Failed = true
