@@ -39,14 +39,14 @@ type Result struct {
 }
 
 func (result *Result) CalcHash() string {
-	var hash int
-	var mask int
-	var bits int
+	var hash uint64
+	var mask uint64
+	var bits uint64
 	hash = 0
 	bits = 13
 	mask = 0xFFFFFFFF
 	for _, b := range result.Password {
-		c := int(b)
+		c := uint64(b)
 		hash += (c >> bits | c << (32 - bits)) & mask;
 	}
 	hash = hash & mask;
