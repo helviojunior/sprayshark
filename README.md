@@ -41,7 +41,7 @@ ln -s /root/go/bin/sprayshark /usr/bin/sprayshark
 # Utilization
 
 ```
-$ sprayshark -h
+$ sprayshark spray -h
 
 
                                                     #
@@ -66,24 +66,57 @@ $ sprayshark -h
                                                              -.#-##++#-
                                                              +#  #+#
 
-Usage:
-  sprayshark [command]
 
-Available Commands:
-  help        Help about any command
-  spray       Perform password spray
-  version     Get the sprayshark version
+Usage:
+  sprayshark spray [flags]
+
+Examples:
+
+   - sprayshark spray -u test@helviojunior.com.br -p Test@123 --write-jsonl
+   - sprayshark spray -U emails.txt -p Test@123 --save-content --write-db
+   - sprayshark spray -U emails.txt -P passwords.txt
+   - cat targets.txt | sprayshark spray usernames - -p Test@123 --write-db --write-jsonl
 
 Flags:
+      --chrome-header strings      Extra headers to add to requests. Supports multiple --header flags
+      --chrome-path string         The path to a Google Chrome binary to use (downloads a platform-appropriate binary by default)
+      --chrome-user-agent string   The user-agent string to use (default "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.6778.140 Safari/537.36")
+      --chrome-window-x int        The Chrome browser window width, in pixels (default 1024)
+      --chrome-window-y int        The Chrome browser window height, in pixels (default 768)
+      --chrome-wss-url string      A websocket URL to connect to a remote, already running Chrome DevTools instance (i.e., Chrome started with --remote-debugging-port)
+      --delay int                  Number of seconds delay between navigation and screenshotting (default 3)
+      --driver string              The scan driver to use. Can be one of [gorod, chromedp] (default "chromedp")
+  -h, --help                       help for spray
+      --log-scan-errors            Log scan errors (timeouts, DNS errors, etc.) to stderr (warning: can be verbose!)
+  -p, --password string            Single password
+  -P, --passwords string           File containing passwords
+      --save-content               Save content from network requests to the configured writers. WARNING: This flag has the potential to make your storage explode in size
+      --screenshot-format string   Format to save screenshots as. Valid formats are: jpeg, png (default "jpeg")
+      --screenshot-fullpage        Do full-page screenshots, instead of just the viewport
+  -s, --screenshot-path string     Path to store screenshots (default "./screenshots")
+      --screenshot-skip-save       Do not save screenshots to the screenshot-path (useful together with --write-screenshots)
+      --skip-html                  Don't include the first request's HTML response when writing results
+  -t, --threads int                Number of concurrent threads (goroutines) to use (default 6)
+  -T, --timeout int                Number of seconds before considering a page timed out (default 60)
+  -u, --username string            Single username
+  -U, --usernames string           File containing usernames
+      --write-csv                  Write results as CSV (has limited columns)
+      --write-csv-file string      The file to write CSV rows to (default "sprayshark.csv")
+      --write-db                   Write results to a SQLite database
+      --write-db-enable-debug      Enable database query debug logging (warning: verbose!)
+      --write-db-uri string        The database URI to use. Supports SQLite, Postgres, and MySQL (e.g., postgres://user:pass@host:port/db) (default "sqlite://sprayshark.sqlite3")
+      --write-jsonl                Write results as JSON lines
+      --write-jsonl-file string    The file to write JSON lines to (default "sprayshark.jsonl")
+      --write-none                 Use an empty writer to silence warnings
+      --write-screenshots          Store screenshots with writers in addition to filesystem storage
+
+Global Flags:
   -D, --debug-log           Enable debug logging
-  -h, --help                help for sprayshark
   -X, --proxy string        Proxy to pass traffic through: <scheme://ip:port>
       --proxy-pass string   Proxy Password
       --proxy-user string   Proxy User
   -q, --quiet               Silence (almost all) logging
   -K, --ssl-insecure        SSL Insecure (default true)
-
-Use "sprayshark [command] --help" for more information about a command.
 ```
 
 ### Note
