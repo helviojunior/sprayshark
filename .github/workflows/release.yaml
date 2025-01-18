@@ -39,10 +39,10 @@ jobs:
           goos: ${{ matrix.goos }}
           goarch: ${{ matrix.goarch }}
           goversion: "https://dl.google.com/go/go1.23.5.linux-amd64.tar.gz"
-          ldflags: |
-            -s -w \
+          build_flags: |
+            -ldflags="-s -w \
             -X=github.com/helviojunior/sprayshark/internal/version.Version=${{ steps.vars.outputs.VER }} \
             -X=github.com/helviojunior/sprayshark/internal/version.GitHash=${{ steps.vars.outputs.GITHASH }} \
             -X=github.com/helviojunior/sprayshark/internal/version.GoBuildEnv=${{ steps.vars.outputs.BUILDENV }} \
-            -X=github.com/helviojunior/sprayshark/internal/version.GoBuildTime=${{ steps.vars.outputs.BUILDTIME }}
+            -X=github.com/helviojunior/sprayshark/internal/version.GoBuildTime=${{ steps.vars.outputs.BUILDTIME }}"
 
