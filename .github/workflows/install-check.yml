@@ -1,0 +1,38 @@
+name: Go Install Check
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+  schedule:
+    - cron: "0 0 * * 1"
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: "1.23"
+
+      - name: Install gowitness at specific commit
+        run: |
+          apt-get update && apt-get install -y \
+            ca-certificates chromium chromium-driver
+          go install github.com/helviojunior/sprayshark@${GITHUB_SHA} -ldflags="-s -w \
+          -X=github.com/helviojunior/sprayshark/internal/version.Version=${{ github.event.release.tag_name }} \
+          -X=github.com/helviojunior/sprayshark/internal/version.GitHash=$(git rev-parse --short HEAD) \
+          -X=github.com/helviojunior/sprayshark/internal/version.GoBuildEnv=$(go version | cut -d' ' -f 3,4 | sed 's/ /_/g') \
+          -X=github.com/helviojunior/sprayshark/internal/version.GoBuildTime=$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+
+      - name: Verify Installation
+        run: |
+          sprayshark spray -h
+          sprayshark version
