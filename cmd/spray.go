@@ -157,46 +157,47 @@ multiple writers using the _--writer-*_ flags (see --help).
     Run: func(cmd *cobra.Command, args []string) {
         log.Debug("starting spray")
 
-        users := make(chan string)
-        passwords := make(chan string)
+        users := []string{}
+        passwords := []string{}
         reader := readers.NewFileReader(fileCmdOptions)
 
-        go func() {
-            if fileCmdOptions.UserFile != "" {
-                if err := reader.ReadEmails(users); err != nil {
-                    log.Error("error in reader.Read", "err", err)
-                    os.Exit(2)
-                }
-            }else{
-                m, err := mail.ParseAddress(sprayOptions.Username)
-                if err != nil {
-                    log.Error("invalid user email", "e-mail", sprayOptions.Username, "err", err)
-                    os.Exit(2)
-                }
-                defer close(users)
-                users <- m.Address
+        if fileCmdOptions.UserFile != "" {
+            log.Debugf("Reading users file: %s", fileCmdOptions.UserFile)
+            if err := reader.ReadEmails(&users); err != nil {
+                log.Error("error in reader.Read", "err", err)
+                os.Exit(2)
             }
-        }()
-    
-        go func() {
-            if fileCmdOptions.PassFile != "" {
-                if err := reader.ReadPasswords(passwords); err != nil {
-                    log.Error("error in reader.Read", "err", err)
-                    os.Exit(2)
-                }   
-            }else{
-                defer close(passwords)
-                passwords <- sprayOptions.Password
+            
+        }else{
+            m, err := mail.ParseAddress(sprayOptions.Username)
+            if err != nil {
+                log.Error("invalid user email", "e-mail", sprayOptions.Username, "err", err)
+                os.Exit(2)
             }
-        }()
+            users = append(users, m.Address)
+        }
+        log.Debugf("Loaded %d user(s)", len(users))
+
+        if fileCmdOptions.PassFile != "" {
+            log.Debugf("Reading passwords file: %s", fileCmdOptions.PassFile)
+            if err := reader.ReadPasswords(&passwords); err != nil {
+                log.Error("error in reader.Read", "err", err)
+                os.Exit(2)
+            }   
+        }else{
+            passwords = append(passwords, sprayOptions.Password)
+        }
+        log.Debugf("Loaded %d password(s)", len(passwords))
+
+        log.Infof("Spraying %d credentials", len(passwords) * len(users))
 
         // Check runned items
         conn, _ := database.Connection("sqlite://" + opts.Writer.UserPath +"/.sprayshark.db", true, false)
 
         go func() {
             defer close(scanRunner.Targets)
-            for p := range passwords {
-                for u := range users {
+            for _, p := range passwords {
+                for _, u := range users {
 
                     i := true
                     if conn != nil {
@@ -227,12 +228,14 @@ multiple writers using the _--writer-*_ flags (see --help).
                             Username: u,
                             Password: p,
                         }
+                    }else{
+                        scanRunner.AddSkipped()
                     }
                 }
             }
         }()
 
-        scanRunner.Run()
+        scanRunner.Run(len(passwords) * len(users))
         scanRunner.Close()
     },
 }

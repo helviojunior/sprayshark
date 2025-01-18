@@ -14,7 +14,10 @@ var versionCmd = &cobra.Command{
     Long:  ascii.LogoHelp(`Get the sprayshark version.`),
     Run: func(cmd *cobra.Command, args []string) {
         fmt.Println(ascii.Logo())
-        fmt.Printf("\nsprayshark: %s\ngit hash: %s\nbuild env: %s\nbuild time: %s\n",
+
+        fmt.Println("Author: Helvio Junior (m4v3r1ck)")
+        fmt.Println("Source: https://github.com/helviojunior/sprayshark")
+        fmt.Printf("Version: %s\nGit hash: %s\nBuild env: %s\nBuild time: %s\n\n",
             version.Version, version.GitHash, version.GoBuildEnv, version.GoBuildTime)
     },
 }

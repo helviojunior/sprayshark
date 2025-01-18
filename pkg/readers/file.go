@@ -33,8 +33,7 @@ func NewFileReader(opts *FileReaderOptions) *FileReader {
 
 // Read from a file that contains targets.
 // FilePath can be "-" indicating that we should read from stdin.
-func (fr *FileReader) ReadPasswords(ch chan<- string) error {
-	defer close(ch)
+func (fr *FileReader) ReadPasswords(passwords *[]string) error {
 
 	var file *os.File
 	var err error
@@ -52,7 +51,7 @@ func (fr *FileReader) ReadPasswords(ch chan<- string) error {
 			continue
 		}
 
-		ch <- candidate
+		*passwords = append(*passwords, candidate)
 	}
 
 	return scanner.Err()
@@ -60,8 +59,7 @@ func (fr *FileReader) ReadPasswords(ch chan<- string) error {
 
 // Read from a file that contains targets.
 // FilePath can be "-" indicating that we should read from stdin.
-func (fr *FileReader) ReadEmails(ch chan<- string) error {
-	defer close(ch)
+func (fr *FileReader) ReadEmails(users *[]string)  error {
 
 	var file *os.File
 	var err error
@@ -85,7 +83,7 @@ func (fr *FileReader) ReadEmails(ch chan<- string) error {
 
 		m, err := mail.ParseAddress(candidate)
 		if err == nil {
-			ch <- m.Address
+			*users = append(*users, m.Address)
 		}
 	}
 

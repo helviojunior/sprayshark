@@ -6,13 +6,12 @@ import (
 	"log/slog"
 	//"net/url"
 	"net/mail"
-	//"os"
+	"os"
+	"fmt"
 	"sync"
 	"time"
 	//"strings"
 	"math/rand/v2"
-
-	//pb "github.com/schollz/progressbar/v3"
 
 	wappalyzer "github.com/projectdiscovery/wappalyzergo"
 	"github.com/helviojunior/sprayshark/internal/islazy"
@@ -44,8 +43,43 @@ type Runner struct {
 	ctx    context.Context
 	cancel context.CancelFunc
 
-	//bar pb.ProgressBar
+	status *Status
 }
+
+type Status struct {
+	Total int
+	Tested int
+	UserExists int
+	Valid int
+	Error int
+	Skipped int
+}
+
+func (st *Status) Print() { 
+    fmt.Fprintf(os.Stderr, "\n    %d/%d, valid %d, exists %d, errors %d, skipped %d\r\033[A", 
+    	st.Tested, st.Total, st.Valid, st.UserExists, st.Error, st.Skipped)
+} 
+
+func (st *Status) AddResult(result *models.Result) { 
+    st.Tested += 1
+    if st.Tested > st.Total {
+    	st.Total = st.Tested
+    }
+	if result.Failed {
+		st.Error += 1
+		return
+	}
+	if result.ValidCredential {
+		st.Valid += 1
+		return
+	}
+	if result.UserExists {
+		st.UserExists += 1
+		return
+	}
+	st.UserExists += 1
+} 
+
 
 // New gets a new Runner ready for probing.
 // It's up to the caller to call Close() on the runner
@@ -83,6 +117,14 @@ func NewRunner(logger *slog.Logger, driver Driver, opts Options, writers []write
 		log:        logger,
 		ctx:        ctx,
 		cancel:     cancel,
+		status:     &Status{
+			Total: 0,
+			Tested: 0,
+			UserExists: 0,
+			Valid: 0,
+			Error: 0,
+			Skipped: 0,
+		},
 	}, nil
 }
 
@@ -107,12 +149,33 @@ func (run *Runner) checkEmail(target string) error {
 	return nil
 }
 
+func (run *Runner) AddSkipped() {
+	run.status.Skipped += 1
+	run.status.Tested += 1
+}
+
 // Run executes the runner, processing targets as they arrive
 // in the Targets channel
-func (run *Runner) Run() {
+func (run *Runner) Run(total int) {
 	wg := sync.WaitGroup{}
 
-	//run.bar = progressbar.Default(run)
+	run.status.Total = total
+
+	if !run.options.Logging.Silence {
+		wg.Add(1)
+		go func() {
+	        defer wg.Done()
+			for {
+				select {
+					case <-run.ctx.Done():
+						return
+					default:
+			        	run.status.Print()
+			        	time.Sleep(1 * time.Second)
+			    }
+	        }
+	    }()
+	}
 
 	// will spawn Scan.Theads number of "workers" as goroutines
 	for w := 0; w < run.options.Scan.Threads; w++ {
@@ -181,6 +244,8 @@ func (run *Runner) Run() {
 						}
 
 						if good_to_go {
+							run.status.AddResult(result)
+
 							if err := run.runWriters(result); err != nil {
 								logger.Error("failed to write result for target", "err", err)
 							}
