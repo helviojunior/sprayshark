@@ -98,6 +98,8 @@ type Scan struct {
     ScreenshotToWriter bool
     // ScreenshotSkipSave skips saving screenshots to disk
     ScreenshotSkipSave bool
+    // ScreenshotSaveAll store all result screenshots to disk
+    ScreenshotSaveAll bool
 
 }
 
@@ -114,6 +116,10 @@ func NewDefaultOptions() *Options {
             Threads:          6,
             Timeout:          60,
             ScreenshotFormat: "jpeg",
+            ScreenshotFullPage: false,
+            ScreenshotToWriter: false,
+            ScreenshotSkipSave: false,
+            ScreenshotSaveAll: false,
         },
         Logging: Logging{
             Debug:         true,

@@ -154,7 +154,7 @@ func DoFinal(run *Chromedp, navigationCtx context.Context, username string, resu
 		}
 	}
 
-	if !result.UserExists && !result.ValidCredential {
+	if !run.options.Scan.ScreenshotSaveAll && !result.UserExists && !result.ValidCredential {
 		return
 	}
 
@@ -193,7 +193,7 @@ func DoFinal(run *Chromedp, navigationCtx context.Context, username string, resu
 
 		// write the screenshot to disk if we have a path
 		if !run.options.Scan.ScreenshotSkipSave {
-			result.Filename = islazy.SafeFileName(username) + "." + run.options.Scan.ScreenshotFormat
+			result.Filename = islazy.SafeFileName(username) + "_" + result.PasswordHash + "." + run.options.Scan.ScreenshotFormat
 			result.Filename = islazy.LeftTrucate(result.Filename, 200)
 			if err := os.WriteFile(
 				filepath.Join(run.options.Scan.ScreenshotPath, result.Filename),
@@ -264,6 +264,9 @@ func (run *Chromedp) Check(username string, password string, thisRunner *runner.
 		//first       *network.EventRequestWillBeSent
 		//netlog      = make(map[string]models.NetworkLog)
 	)
+
+	// Calculate password hash
+	result.CalcHash()
 
 	// navigate to the target
 	if err := chromedp.Run(

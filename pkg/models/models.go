@@ -2,6 +2,7 @@ package models
 
 import (
 	"time"
+	"fmt"
 )
 
 // RequestType are network log types
@@ -17,6 +18,7 @@ type Result struct {
 
 	User                  string    `json:"username"`
 	Password              string    `json:"password"`
+	PasswordHash          string    `json:"password_hash"`
 	ProbedAt              time.Time `json:"probed_at"`
 
 	UserExists       	  bool   	`json:"user_exists"`
@@ -34,6 +36,23 @@ type Result struct {
 
 	Network []NetworkLog `json:"network" gorm:"constraint:OnDelete:CASCADE"`
 
+}
+
+func (result *Result) CalcHash() string {
+	var hash int
+	var mask int
+	var bits int
+	hash = 0
+	bits = 13
+	mask = 0xFFFFFFFF
+	for _, b := range result.Password {
+		c := int(b)
+		hash += (c >> bits | c << (32 - bits)) & mask;
+	}
+	hash = hash & mask;
+
+	result.PasswordHash = fmt.Sprintf("%06d", hash)
+	return result.PasswordHash
 }
 
 type NetworkLog struct {

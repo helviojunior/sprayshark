@@ -263,6 +263,7 @@ func init() {
     scanCmd.Flags().BoolVar(&opts.Scan.ScreenshotSkipSave, "screenshot-skip-save", false, "Do not save screenshots to the screenshot-path (useful together with --write-screenshots)")
     scanCmd.Flags().BoolVar(&opts.Scan.SaveHTML, "save-html", false, "Include the result request's HTML response when writing results")
     scanCmd.Flags().BoolVar(&opts.Scan.ScreenshotToWriter, "write-screenshots", false, "Store screenshots with writers in addition to filesystem storage")
+    scanCmd.Flags().BoolVar(&opts.Scan.ScreenshotSaveAll, "write-all-screenshots", false, "Store all result screenshots to filesystem storage")
 
     // Chrome options
     scanCmd.Flags().StringVar(&opts.Chrome.Path, "chrome-path", "", "The path to a Google Chrome binary to use (downloads a platform-appropriate binary by default)")
