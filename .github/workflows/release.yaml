@@ -21,14 +21,17 @@ jobs:
         with:
           fetch-depth: 0
       - name: Get OS and arch info
+        id: vars
         run: |
+          VER=$(echo '${{ github.event.release.tag_name }}' | grep -oE '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}')
           GITHASH=$(git rev-parse --short HEAD)
           BUILDENV=$(go version | cut -d' ' -f 3,4 | sed 's/ /_/g')
           BUILDTIME=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
 
-          echo "GITHASH=$GITHASH" >> $GITHUB_ENV
-          echo "BUILDENV=$BUILDENV" >> $GITHUB_ENV
-          echo "BUILDTIME=$BUILDTIME" >> $GITHUB_ENV
+          echo "VER=$VER" >> $GITHUB_OUTPUT
+          echo "GITHASH=$GITHASH" >> $GITHUB_OUTPUT
+          echo "BUILDENV=$BUILDENV" >> $GITHUB_OUTPUT
+          echo "BUILDTIME=$BUILDTIME" >> $GITHUB_OUTPUT
 
       - uses: wangyoucao577/go-release-action@v1.33
         with:
@@ -36,12 +39,10 @@ jobs:
           goos: ${{ matrix.goos }}
           goarch: ${{ matrix.goarch }}
           goversion: "https://dl.google.com/go/go1.23.5.linux-amd64.tar.gz"
-          build_flags: "-trimpath"
           ldflags: |
             -s -w \
-            -X=github.com/helviojunior/sprayshark/internal/version.Version=$(cat /tmp/version.txt) \
-            -X=github.com/helviojunior/sprayshark/internal/version.GitHash=$(cat /tmp/githash.txt) \
-            -X=github.com/helviojunior/sprayshark/internal/version.GoBuildEnv=$(cat /tmp/buildenv.txt) \
-            -X=github.com/helviojunior/sprayshark/internal/version.GoBuildTime=$(cat /tmp/buildtime.txt)
-          pre_command: chmod +x ./github/prepare.sh; ./github/prepare.sh
+            -X=github.com/helviojunior/sprayshark/internal/version.Version=${{ steps.vars.outputs.VER }} \
+            -X=github.com/helviojunior/sprayshark/internal/version.GitHash=${{ steps.vars.outputs.GITHASH }} \
+            -X=github.com/helviojunior/sprayshark/internal/version.GoBuildEnv=${{ steps.vars.outputs.BUILDENV }} \
+            -X=github.com/helviojunior/sprayshark/internal/version.GoBuildTime=${{ steps.vars.outputs.BUILDTIME }}
 
