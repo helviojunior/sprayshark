@@ -22,7 +22,7 @@ jobs:
         with:
           go-version: "1.23"
 
-      - name: Install gowitness at specific commit
+      - name: Install sprayshark at specific commit
         run: |
           apt-get update && apt-get install -y \
             ca-certificates chromium chromium-driver
