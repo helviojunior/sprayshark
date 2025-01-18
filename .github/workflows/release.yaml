@@ -39,9 +39,9 @@ jobs:
           build_flags: "-trimpath"
           ldflags: |
             -s -w \
-            -X=github.com/helviojunior/sprayshark/internal/version.Version=${{ github.event.release.tag_name }} \
-            -X=github.com/helviojunior/sprayshark/internal/version.GitHash=${{ GITHASH }} \
-            -X=github.com/helviojunior/sprayshark/internal/version.GoBuildEnv=${{ BUILDENV }} \
-            -X=github.com/helviojunior/sprayshark/internal/version.GoBuildTime=${{ BUILDTIME }}
+            -X=github.com/helviojunior/sprayshark/internal/version.Version=$(cat /tmp/version.txt) \
+            -X=github.com/helviojunior/sprayshark/internal/version.GitHash=$(cat /tmp/githash.txt) \
+            -X=github.com/helviojunior/sprayshark/internal/version.GoBuildEnv=$(cat /tmp/buildenv.txt) \
+            -X=github.com/helviojunior/sprayshark/internal/version.GoBuildTime=$(cat /tmp/buildtime.txt)
           pre_command: chmod +x ./github/prepare.sh; ./github/prepare.sh
 
