@@ -1,8 +1,8 @@
 package writers
 
 import (
-	//"fmt"
-	//"os"
+	"fmt"
+	"os"
 
 	"github.com/helviojunior/sprayshark/pkg/models"
 	logger "github.com/helviojunior/sprayshark/pkg/log"
@@ -19,7 +19,7 @@ func NewStdoutWriter() (*StdoutWriter, error) {
 
 // Write results to stdout
 func (s *StdoutWriter) Write(result *models.Result) error {
-	
+	fmt.Fprintf(os.Stderr, "                                                                               \r")
 	if result.Failed {
 		logger.Errorf("[%s] user=%s", result.FailedReason, result.User)
 		return nil
