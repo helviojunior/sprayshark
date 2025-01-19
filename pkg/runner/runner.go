@@ -55,6 +55,7 @@ type Status struct {
 	Error int
 	Skipped int
 	Label string
+	Running bool
 }
 
 func (st *Status) Print() { 
@@ -145,6 +146,7 @@ func NewRunner(logger *slog.Logger, driver Driver, opts Options, writers []write
 			Skipped: 0,
 			NotFound: 0,
 			Label: "[=====]",
+			Running: true,
 		},
 	}, nil
 }
@@ -179,14 +181,15 @@ func (run *Runner) AddSkipped() {
 // in the Targets channel
 func (run *Runner) Run(total int) {
 	wg := sync.WaitGroup{}
+	swg := sync.WaitGroup{}
 
 	run.status.Total = total
 
 	if !run.options.Logging.Silence {
-		wg.Add(1)
+		swg.Add(1)
 		go func() {
-	        defer wg.Done()
-			for {
+	        defer swg.Done()
+			for run.status.Running {
 				select {
 					case <-run.ctx.Done():
 						return
@@ -282,6 +285,8 @@ func (run *Runner) Run(total int) {
 	}
 
 	wg.Wait()
+	run.status.Running = false
+	swg.Wait()
 }
 
 func (run *Runner) Close() {

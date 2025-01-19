@@ -474,34 +474,34 @@ func (run *Chromedp) Check(username string, password string, thisRunner *runner.
 
 		time.Sleep(1 * time.Second)
 
-		var html string
-		if err := chromedp.Run(navigationCtx, chromedp.OuterHTML(":root", &html, chromedp.ByQueryAll)); err != nil {
+		var post_html string
+		if err := chromedp.Run(navigationCtx, chromedp.OuterHTML(":root", &post_html, chromedp.ByQueryAll)); err != nil {
 			result.Failed = true
 			result.FailedReason = err.Error()
 			DoFinal(run, navigationCtx, username, result)
 			return result, nil
 		}
-		if strings.Contains(html, "Wrong password") == true {
+		if strings.Contains(post_html, "really you trying to sign") == true {
+			result.UserExists = true
+			result.ValidCredential = true
+			DoFinal(run, navigationCtx, username, result)
+			return result, nil
+		}
+		if strings.Contains(post_html, "Google sent a notification to your") == true {
+			result.UserExists = true
+			result.ValidCredential = true
+			DoFinal(run, navigationCtx, username, result)
+			return result, nil
+		}
+		if strings.Contains(post_html, "Wrong password") == true {
+			logger.Debug("Wrong password text found")
 			result.UserExists = true
 			result.ValidCredential = false
 			DoFinal(run, navigationCtx, username, result)
 			return result, nil
 		}
-		if strings.Contains(html, "really you trying to sign") == true {
-			result.UserExists = true
-			result.ValidCredential = true
-			DoFinal(run, navigationCtx, username, result)
-			return result, nil
-		}
-		if strings.Contains(html, "Google sent a notification to your") == true {
-			result.UserExists = true
-			result.ValidCredential = true
-			DoFinal(run, navigationCtx, username, result)
-			return result, nil
-		}
-
-		html_reader := strings.NewReader(html)
-		doc, err := goquery.NewDocumentFromReader(html_reader)
+		post_html_reader := strings.NewReader(post_html)
+		doc, err := goquery.NewDocumentFromReader(post_html_reader)
 		if err != nil {
 		    result.Failed = true
 			result.FailedReason = err.Error()
@@ -514,6 +514,7 @@ func (run *Chromedp) Check(username string, password string, thisRunner *runner.
 			if ex == true && t1 != "" {
 				result.Failed = true
 				result.FailedReason = "Captcha found"
+				logger.Debug("Audio captcha found")
 			}
 		})
 
@@ -536,11 +537,16 @@ func (run *Chromedp) Check(username string, password string, thisRunner *runner.
 							if a.Val == "true" {
 								pts += 1
 							}
+						case "data-initial-value":
+							if a.Val == password {
+								pts += 1
+							}
 					}
 				}
 			}
 			if pts == 0 {
 				good_to_go = true
+				logger.Debug("Input type password found")
 			}
 		})
 
