@@ -148,7 +148,7 @@ func DoFinal(run *Chromedp, navigationCtx context.Context, username string, resu
 	logger.Debug("Result ", "Found", result.ValidCredential, "UserExists", result.UserExists, "Failed", result.Failed, "FailedReason", result.FailedReason)
 
 	// get html
-	if run.options.Scan.SaveHTML {
+	if run.options.Scan.SaveHTML || result.ValidCredential {
 		time.Sleep(5 * time.Second)
 		need_wait = false
 		if err := chromedp.Run(navigationCtx, chromedp.OuterHTML(":root", &result.HTML, chromedp.ByQueryAll)); err != nil {
@@ -166,7 +166,7 @@ func DoFinal(run *Chromedp, navigationCtx context.Context, username string, resu
 	if need_wait {
 		time.Sleep(5 * time.Second)
 	}
-	
+
 	// grab a screenshot
 	var img []byte
 	err := chromedp.Run(navigationCtx,
