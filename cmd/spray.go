@@ -202,13 +202,24 @@ multiple writers using the _--writer-*_ flags (see --help).
 
                     i := true
                     if conn != nil {
-                        response := conn.Raw("SELECT count(id) as count from results WHERE failed = 0 AND user = ? AND password = ?", u, p)
+                        response := conn.Raw("SELECT count(id) as count from results WHERE failed = 0 AND user = ? AND valid_credential = 1", u)
                         if response != nil {
                             var cnt int
                             _ = response.Row().Scan(&cnt)
                             i = (cnt == 0)
                             if cnt > 0 {
-                                log.Debug("[already tested, same password]", "user", u, "pass", p)
+                                log.Info("[Credential already found]", "user", u)
+                            }
+                        }
+                        if i {
+                            response := conn.Raw("SELECT count(id) as count from results WHERE failed = 0 AND user = ? AND password = ?", u, p)
+                            if response != nil {
+                                var cnt int
+                                _ = response.Row().Scan(&cnt)
+                                i = (cnt == 0)
+                                if cnt > 0 {
+                                    log.Debug("[already tested, same password]", "user", u, "pass", p)
+                                }
                             }
                         }
                         if i {
@@ -222,6 +233,9 @@ multiple writers using the _--writer-*_ flags (see --help).
                                 }
                             }
                         }
+                        
+                            
+                        
                     }
 
                     if i {
