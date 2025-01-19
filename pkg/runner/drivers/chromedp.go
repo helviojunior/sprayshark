@@ -508,6 +508,15 @@ func (run *Chromedp) Check(username string, password string, thisRunner *runner.
 			DoFinal(run, navigationCtx, username, result)
 			return result, nil
 		}
+
+		doc.Find(`audio[id="captchaAudio"]`).Each(func(i int, s *goquery.Selection) {
+			t1, ex := s.Attr("src")
+			if ex == true && t1 != "" {
+				result.Failed = true
+				result.FailedReason = "Captcha found"
+			}
+		})
+
 		doc.Find(`input[type="password"]`).Each(func(i int, s *goquery.Selection) {
 			pts := 0
 			if len(s.Nodes) > 0 {
