@@ -139,6 +139,8 @@ func NewChromedp(logger *slog.Logger, opts runner.Options) (*Chromedp, error) {
 func DoFinal(run *Chromedp, navigationCtx context.Context, username string, result *models.Result) {
 	logger := run.log.With("user", username)
 
+	need_wait := true
+
 	//if !run.options.Logging.LogScanErrors {
 	//	return
 	//}
@@ -147,6 +149,8 @@ func DoFinal(run *Chromedp, navigationCtx context.Context, username string, resu
 
 	// get html
 	if run.options.Scan.SaveHTML {
+		time.Sleep(5 * time.Second)
+		need_wait = false
 		if err := chromedp.Run(navigationCtx, chromedp.OuterHTML(":root", &result.HTML, chromedp.ByQueryAll)); err != nil {
 			if run.options.Logging.LogScanErrors {
 				logger.Error("could not get page html", "err", err)
@@ -159,8 +163,10 @@ func DoFinal(run *Chromedp, navigationCtx context.Context, username string, resu
 	}
 
 	//Wait some time before take screenshot
-	time.Sleep(5 * time.Second)
-
+	if need_wait {
+		time.Sleep(5 * time.Second)
+	}
+	
 	// grab a screenshot
 	var img []byte
 	err := chromedp.Run(navigationCtx,
