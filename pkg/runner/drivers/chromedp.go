@@ -158,6 +158,9 @@ func DoFinal(run *Chromedp, navigationCtx context.Context, username string, resu
 		return
 	}
 
+	//Wait some time before take screenshot
+	time.Sleep(5 * time.Second)
+
 	// grab a screenshot
 	var img []byte
 	err := chromedp.Run(navigationCtx,
