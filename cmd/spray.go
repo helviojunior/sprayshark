@@ -207,7 +207,7 @@ multiple writers using the _--writer-*_ flags (see --help).
                             var cnt int
                             _ = response.Row().Scan(&cnt)
                             i = (cnt == 0)
-                            if cnt >= 0 {
+                            if cnt > 0 {
                                 log.Debug("[already tested, same password]", "user", u, "pass", p)
                             }
                         }
@@ -217,7 +217,7 @@ multiple writers using the _--writer-*_ flags (see --help).
                                 var cnt int
                                 _ = response.Row().Scan(&cnt)
                                 i = (cnt == 0)
-                                if cnt >= 0 {
+                                if cnt > 0 {
                                     log.Debug("[already tested, user not found]", "user", u)
                                 }
                             }
