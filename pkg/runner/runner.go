@@ -121,8 +121,6 @@ func NewRunner(logger *slog.Logger, driver Driver, opts Options, writers []write
 		return nil, errors.New("invalid screenshot format")
 	}
 
-	//
-
 	ctx, cancel := context.WithCancel(context.Background())
 
 	return &Runner{
@@ -133,7 +131,7 @@ func NewRunner(logger *slog.Logger, driver Driver, opts Options, writers []write
 		log:        logger,
 		ctx:        ctx,
 		cancel:     cancel,
-		uid: 		string(time.Now().UnixMilli()),
+		uid: 		fmt.Sprintf("%d", time.Now().UnixMilli()),
 		status:     &Status{
 			Total: 0,
 			Tested: 0,
