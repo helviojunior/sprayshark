@@ -59,7 +59,11 @@ type Status struct {
 	Running bool
 }
 
-func (st *Status) Print() { 
+func (st *Status) Print(enumOnly_optional ...bool) { 
+	enumOnly := false
+	if len(enumOnly_optional) > 0 {
+		enumOnly = enumOnly_optional[0]
+	}
 	switch st.Label {
 		case "[=====]":
             st.Label = "[ ====]"
@@ -76,9 +80,15 @@ func (st *Status) Print() {
         default:
             st.Label = "[=====]"
 	}
-	fmt.Fprintf(os.Stderr, "%s\n    %s %d/%d, valid %d, exists %d, not found %d, errors %d, skipped %d\r\033[A", 
-    	"                                                                                           ",
-    	st.Label, st.Tested, st.Total, st.Valid, st.UserExists, st.NotFound, st.Error, st.Skipped)
+	if enumOnly {
+		fmt.Fprintf(os.Stderr, "%s\n    %s %d/%d, valid users %d, not found %d, errors %d, skipped %d\r\033[A", 
+	    	"                                                                                           ",
+	    	st.Label, st.Tested, st.Total, st.UserExists, st.NotFound, st.Error, st.Skipped)
+	}else{
+		fmt.Fprintf(os.Stderr, "%s\n    %s %d/%d, valid %d, exists %d, not found %d, errors %d, skipped %d\r\033[A", 
+	    	"                                                                                           ",
+	    	st.Label, st.Tested, st.Total, st.Valid, st.UserExists, st.NotFound, st.Error, st.Skipped)
+    }
 } 
 
 func (st *Status) AddResult(result *models.Result) { 
@@ -194,7 +204,7 @@ func (run *Runner) Run(total int, enumOnly_optional ...bool) Status {
 					case <-run.ctx.Done():
 						return
 					default:
-			        	run.status.Print()
+			        	run.status.Print(enumOnly)
 			        	time.Sleep(time.Duration(time.Second/2))
 			    }
 	        }
