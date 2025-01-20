@@ -31,7 +31,7 @@ jobs:
       - name: Get OS and arch info
         id: vars
         run: |
-          VER=$(curl -s https://api.github.com/repos/helviojunior/sprayshark/releases/latest | jq -r '.tag_name' | grep -oE '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}')
+          VER="${GITHUB_SHA}"
           GITHASH=$(git rev-parse --short HEAD)
           BUILDENV=$(go version | cut -d' ' -f 3,4 | sed 's/ /_/g')
           BUILDTIME=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
@@ -45,8 +45,6 @@ jobs:
 
       - name: Install sprayshark at specific commit
         run: |
-          sudo apt-get update && sudo apt-get install -y \
-            ca-certificates chromium chromium-driver
           go install github.com/helviojunior/sprayshark@${GITHUB_SHA} -ldflags="${{ steps.vars.outputs.LDFLAGS }}"
 
       - name: Verify Installation
