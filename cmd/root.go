@@ -5,6 +5,7 @@ import (
 	//"net/http"
 	"os/user"
 	"os"
+	"fmt"
 
 	"github.com/helviojunior/sprayshark/internal/ascii"
 	"github.com/helviojunior/sprayshark/pkg/log"
@@ -46,6 +47,23 @@ func Execute() {
 	rootCmd.SilenceErrors = true
 	err := rootCmd.Execute()
 	if err != nil {
+		var cmd string
+		c, _, cerr := rootCmd.Find(os.Args[1:])
+		if cerr == nil {
+			cmd = c.Name()
+		}
+
+		v := "\n"
+
+		if cmd != "" {
+			v += fmt.Sprintf("An error occured running the `%s` command\n", cmd)
+		} else {
+			v += "An error has occured. "
+		}
+
+		v += "The error was:\n\n" + fmt.Sprintf("```%s```", err)
+		fmt.Println(ascii.Markdown(v))
+
 		os.Exit(1)
 	}
 }
