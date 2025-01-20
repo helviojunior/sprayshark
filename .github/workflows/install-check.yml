@@ -28,24 +28,9 @@ jobs:
           sudo apt install -y \
             ca-certificates chromium chromium-driver jq curl
 
-      - name: Get OS and arch info
-        id: vars
-        run: |
-          VER="${GITHUB_SHA}"
-          GITHASH=$(git rev-parse --short HEAD)
-          BUILDENV=$(go version | cut -d' ' -f 3,4 | sed 's/ /_/g')
-          BUILDTIME=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
-          LDFLAGS="-s -w \
-            -X=github.com/helviojunior/sprayshark/internal/version.Version=$VER \
-            -X=github.com/helviojunior/sprayshark/internal/version.GitHash=$GITHASH \
-            -X=github.com/helviojunior/sprayshark/internal/version.GoBuildEnv=$BUILDENV \
-            -X=github.com/helviojunior/sprayshark/internal/version.GoBuildTime=$BUILDTIME"
-
-          echo "LDFLAGS=$LDFLAGS" >> $GITHUB_OUTPUT
-
       - name: Install sprayshark at specific commit
         run: |
-          go install github.com/helviojunior/sprayshark@${GITHUB_SHA} -ldflags="${{ steps.vars.outputs.LDFLAGS }}"
+          go install github.com/helviojunior/sprayshark@${GITHUB_SHA}
 
       - name: Verify Installation
         run: |
