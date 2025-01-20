@@ -2,11 +2,11 @@ name: Go Install Check
 
 on:
   push:
-    branches: [master]
+    branches: [main]
   pull_request:
-    branches: [master]
-  schedule:
-    - cron: "0 0 * * 1"
+    branches: [main]
+  #schedule:
+  #  - cron: "0 0 * * 1"
   workflow_dispatch:
 
 jobs:
@@ -22,15 +22,26 @@ jobs:
         with:
           go-version: "1.23"
 
+      - name: Get OS and arch info
+        id: vars
+        run: |
+          VER=$(echo '${{ github.event.release.tag_name }}' | grep -oE '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}')
+          GITHASH=$(git rev-parse --short HEAD)
+          BUILDENV=$(go version | cut -d' ' -f 3,4 | sed 's/ /_/g')
+          BUILDTIME=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
+          LDFLAGS="-s -w \
+            -X=github.com/helviojunior/sprayshark/internal/version.Version=$VER \
+            -X=github.com/helviojunior/sprayshark/internal/version.GitHash=$GITHASH \
+            -X=github.com/helviojunior/sprayshark/internal/version.GoBuildEnv=$BUILDENV \
+            -X=github.com/helviojunior/sprayshark/internal/version.GoBuildTime=$BUILDTIME"
+
+          echo "LDFLAGS=$LDFLAGS" >> $GITHUB_OUTPUT
+
       - name: Install sprayshark at specific commit
         run: |
-          apt-get update && apt-get install -y \
+          sudo apt-get update && sudo apt-get install -y \
             ca-certificates chromium chromium-driver
-          go install github.com/helviojunior/sprayshark@${GITHUB_SHA} -ldflags="-s -w \
-          -X=github.com/helviojunior/sprayshark/internal/version.Version=${{ github.event.release.tag_name }} \
-          -X=github.com/helviojunior/sprayshark/internal/version.GitHash=$(git rev-parse --short HEAD) \
-          -X=github.com/helviojunior/sprayshark/internal/version.GoBuildEnv=$(go version | cut -d' ' -f 3,4 | sed 's/ /_/g') \
-          -X=github.com/helviojunior/sprayshark/internal/version.GoBuildTime=$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+          go install github.com/helviojunior/sprayshark@${GITHUB_SHA} -ldflags="${{ steps.vars.outputs.LDFLAGS }}"
 
       - name: Verify Installation
         run: |
