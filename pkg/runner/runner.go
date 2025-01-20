@@ -13,7 +13,6 @@ import (
 	//"strings"
 	"math/rand/v2"
 
-	wappalyzer "github.com/projectdiscovery/wappalyzergo"
 	"github.com/helviojunior/sprayshark/internal/islazy"
 	"github.com/helviojunior/sprayshark/pkg/models"
 	"github.com/helviojunior/sprayshark/pkg/writers"
@@ -27,7 +26,6 @@ type Credential struct {
 // Runner is a runner that probes web targets using a driver
 type Runner struct {
 	Driver     Driver
-	Wappalyzer *wappalyzer.Wappalyze
 
 	// options for the Runner to consider
 	options Options
@@ -44,6 +42,9 @@ type Runner struct {
 	cancel context.CancelFunc
 
 	status *Status
+
+	//Test id
+	uid string
 }
 
 type Status struct {
@@ -120,23 +121,19 @@ func NewRunner(logger *slog.Logger, driver Driver, opts Options, writers []write
 		return nil, errors.New("invalid screenshot format")
 	}
 
-	// get a wappalyzer instance
-	wap, err := wappalyzer.New()
-	if err != nil {
-		return nil, err
-	}
+	//
 
 	ctx, cancel := context.WithCancel(context.Background())
 
 	return &Runner{
 		Driver:     driver,
-		Wappalyzer: wap,
 		options:    opts,
 		writers:    writers,
 		Targets:    make(chan Credential),
 		log:        logger,
 		ctx:        ctx,
 		cancel:     cancel,
+		uid: 		string(time.Now().UnixMilli()),
 		status:     &Status{
 			Total: 0,
 			Tested: 0,
@@ -179,7 +176,7 @@ func (run *Runner) AddSkipped() {
 
 // Run executes the runner, processing targets as they arrive
 // in the Targets channel
-func (run *Runner) Run(total int) {
+func (run *Runner) Run(total int) Status {
 	wg := sync.WaitGroup{}
 	swg := sync.WaitGroup{}
 
@@ -235,6 +232,9 @@ func (run *Runner) Run(total int) {
 					counter := 0
 					for good_to_go != true {
 						result, err := run.Driver.Check(credential.Username, credential.Password, run, counter * 5)
+						if result != nil {
+							result.TestId = run.uid
+						}
 
 						counter += 1
 						good_to_go = (err == nil)
@@ -287,6 +287,10 @@ func (run *Runner) Run(total int) {
 	wg.Wait()
 	run.status.Running = false
 	swg.Wait()
+
+	fmt.Fprintf(os.Stderr,  "                                                                                           \r")
+
+	return *run.status
 }
 
 func (run *Runner) Close() {

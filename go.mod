@@ -10,7 +10,6 @@ require (
 	github.com/chromedp/cdproto v0.0.0-20250113203156-3ff4b409e0d4
 	github.com/chromedp/chromedp v0.11.2
 	github.com/glebarez/sqlite v1.11.0
-	github.com/projectdiscovery/wappalyzergo v0.2.11
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/cobra v1.8.1
 	gorm.io/driver/mysql v1.5.7

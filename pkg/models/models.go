@@ -16,6 +16,7 @@ const (
 type Result struct {
 	ID uint `json:"id" gorm:"primarykey"`
 
+	TestId                string    `json:"test_id"`
 	User                  string    `json:"username"`
 	Password              string    `json:"password"`
 	PasswordHash          string    `json:"password_hash"`

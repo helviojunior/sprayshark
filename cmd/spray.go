@@ -250,8 +250,27 @@ multiple writers using the _--writer-*_ flags (see --help).
             }
         }()
 
-        scanRunner.Run(len(passwords) * len(users))
+        status := scanRunner.Run(len(passwords) * len(users))
         scanRunner.Close()
+
+        st := "Execution statistics\n"
+        st += "     -> Wordlist total...: %d\n"
+        st += "     -> Skipped..........: %d\n"
+        st += "     -> Total tested.....: %d\n"
+        st += "     -> Valid credentials: %d\n"
+        st += "     -> Existing users...: %d\n"
+        st += "     -> User not found...: %d\n"
+        st += "     -> Execution error..: %d\n"
+
+        log.Warnf(st, 
+             status.Total, 
+             status.Skipped,
+             status.Total - status.Skipped,
+             status.Valid,
+             status.UserExists,
+             status.NotFound,
+             status.Error,
+        )
     },
 }
 
