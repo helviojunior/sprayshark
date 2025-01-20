@@ -217,7 +217,7 @@ func DoFinal(run *Chromedp, navigationCtx context.Context, username string, resu
 
 // witness does the work of probing a url.
 // This is where everything comes together as far as the runner is concerned.
-func (run *Chromedp) Check(username string, password string, thisRunner *runner.Runner, to int) (*models.Result, error) {
+func (run *Chromedp) Check(username string, password string, thisRunner *runner.Runner, to int, enumOnly bool) (*models.Result, error) {
 	logger := run.log.With("user", username)
 
 	// this might be weird to see, but when screenshotting a large list, using
@@ -346,24 +346,25 @@ func (run *Chromedp) Check(username string, password string, thisRunner *runner.
 
 			logger.Debug("Multiple account found!")
 
-			// TODO try to click at button
-			err = chromedp.Run(navigationCtx, chromedp.Tasks {
-					chromedp.Click(`//*[contains(text(), "account owned by")]`, chromedp.BySearch),
-				},
-			)
-			if err != nil {
-				logger.Debug("Error selecting corporate account", "err", err)
-				result.Failed = true
-				result.FailedReason = err.Error()
-				DoFinal(run, navigationCtx, username, result)
-				return result, nil
-			}
-			time.Sleep(time.Duration(5) * time.Second)
-			if err := chromedp.Run(navigationCtx, chromedp.OuterHTML(":root", &html, chromedp.ByQueryAll)); err != nil {
-				result.Failed = true
-				result.FailedReason = err.Error()
-				DoFinal(run, navigationCtx, username, result)
-				return result, nil
+			if !enumOnly {
+				err = chromedp.Run(navigationCtx, chromedp.Tasks {
+						chromedp.Click(`//*[contains(text(), "account owned by")]`, chromedp.BySearch),
+					},
+				)
+				if err != nil {
+					logger.Debug("Error selecting corporate account", "err", err)
+					result.Failed = true
+					result.FailedReason = err.Error()
+					DoFinal(run, navigationCtx, username, result)
+					return result, nil
+				}
+				time.Sleep(time.Duration(5) * time.Second)
+				if err := chromedp.Run(navigationCtx, chromedp.OuterHTML(":root", &html, chromedp.ByQueryAll)); err != nil {
+					result.Failed = true
+					result.FailedReason = err.Error()
+					DoFinal(run, navigationCtx, username, result)
+					return result, nil
+				}
 			}
 		}
 
@@ -387,7 +388,7 @@ func (run *Chromedp) Check(username string, password string, thisRunner *runner.
 			t1, ex := s.Attr("src")
 			if ex == true && t1 != "" {
 				result.UserExists = true
-				result.Failed = true
+				result.Failed = true && !enumOnly
 				result.FailedReason = "Captcha found"
 				good_to_go = true
 			}
@@ -430,13 +431,13 @@ func (run *Chromedp) Check(username string, password string, thisRunner *runner.
 				t1, ex := s.Attr("title")
 				if ex && strings.Contains(strings.ToLower(t1), "recaptcha") == true {
 					result.UserExists = true
-					result.Failed = true
+					result.Failed = true && !enumOnly
 					result.FailedReason = "Captcha found"
 				}
 			})
 		}
 
-		if result.Failed == true {
+		if result.Failed == true || (enumOnly && strings.Contains(result.FailedReason, "Captcha")){
 			DoFinal(run, navigationCtx, username, result)
 			return result, nil
 		}
@@ -460,6 +461,15 @@ func (run *Chromedp) Check(username string, password string, thisRunner *runner.
 		DoFinal(run, navigationCtx, username, result)
 		return result, nil
 	}
+
+	// Not try to verify password
+	if enumOnly {
+		//If this point of code have been reched I can understand that user exists
+		result.UserExists = true
+		DoFinal(run, navigationCtx, username, result)
+		return result, nil
+	}
+
 	err = chromedp.Run(navigationCtx, chromedp.Tasks {
 			chromedp.WaitVisible(passwd_selector),
 			chromedp.SendKeys(passwd_selector, password),
@@ -588,9 +598,7 @@ func (run *Chromedp) Check(username string, password string, thisRunner *runner.
 
 	}
 
-
 	logger.Debug("End of Loop password submit")
-
 
 	result.UserExists = true
 	result.ValidCredential = true

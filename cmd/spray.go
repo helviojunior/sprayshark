@@ -212,7 +212,7 @@ multiple writers using the _--writer-*_ flags (see --help).
                             }
                         }
                         if i {
-                            response := conn.Raw("SELECT count(id) as count from results WHERE failed = 0 AND user = ? AND password = ?", u, p)
+                            response := conn.Raw("SELECT count(id) as count from results WHERE failed = 0 AND user = ? AND password = ? AND password != ''", u, p)
                             if response != nil {
                                 var cnt int
                                 _ = response.Row().Scan(&cnt)

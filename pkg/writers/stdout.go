@@ -29,7 +29,11 @@ func (s *StdoutWriter) Write(result *models.Result) error {
 		return nil
 	}
 	if result.UserExists {
-		logger.Infof("[Invalid Creds] %s:%s", result.User, result.Password)
+		if result.Password == "" { //User enumeration
+			logger.Warnf("[User found] %s", result.User)
+		}else{
+			logger.Infof("[Invalid Creds] %s:%s", result.User, result.Password)
+		}
 		return nil
 	}
 	logger.Infof("[Invalid User] username: %s", result.User)

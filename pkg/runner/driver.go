@@ -17,6 +17,6 @@ func (e ChromeNotFoundError) Error() string {
 
 // Driver is the interface browser drivers will implement.
 type Driver interface {
-	Check(username string, password string, runner *Runner, to int) (*models.Result, error)
+	Check(username string, password string, runner *Runner, to int, enumOnly bool) (*models.Result, error)
 	Close()
 }

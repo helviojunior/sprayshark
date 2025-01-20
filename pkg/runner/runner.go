@@ -176,11 +176,16 @@ func (run *Runner) AddSkipped() {
 
 // Run executes the runner, processing targets as they arrive
 // in the Targets channel
-func (run *Runner) Run(total int) Status {
+func (run *Runner) Run(total int, enumOnly_optional ...bool) Status {
 	wg := sync.WaitGroup{}
 	swg := sync.WaitGroup{}
 
 	run.status.Total = total
+
+	enumOnly := false
+	if len(enumOnly_optional) > 0 {
+		enumOnly = enumOnly_optional[0]
+	}
 
 	if !run.options.Logging.Silence {
 		swg.Add(1)
@@ -231,7 +236,7 @@ func (run *Runner) Run(total int) Status {
 					good_to_go := false
 					counter := 0
 					for good_to_go != true {
-						result, err := run.Driver.Check(credential.Username, credential.Password, run, counter * 5)
+						result, err := run.Driver.Check(credential.Username, credential.Password, run, counter * 5, enumOnly)
 						if result != nil {
 							result.TestId = run.uid
 						}
