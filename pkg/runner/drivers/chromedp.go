@@ -386,6 +386,7 @@ func (run *Chromedp) Check(username string, password string, thisRunner *runner.
 		doc.Find(`audio[id="captchaAudio"]`).Each(func(i int, s *goquery.Selection) {
 			t1, ex := s.Attr("src")
 			if ex == true && t1 != "" {
+				result.UserExists = true
 				result.Failed = true
 				result.FailedReason = "Captcha found"
 				good_to_go = true
@@ -428,6 +429,7 @@ func (run *Chromedp) Check(username string, password string, thisRunner *runner.
 				// For each item found, get the title
 				t1, ex := s.Attr("title")
 				if ex && strings.Contains(strings.ToLower(t1), "recaptcha") == true {
+					result.UserExists = true
 					result.Failed = true
 					result.FailedReason = "Captcha found"
 				}
