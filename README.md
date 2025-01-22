@@ -131,6 +131,16 @@ I recomend to use a kind of proxy to work with password spray. An amazing projec
 
 You can start the doxycannon and use the `sprayshark` with parameter `--proxy socks4://127.0.0.1:1337`
 
+## Linux environment
+
+Follows the suggest commands to install linux environment
+
+```
+wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+apt install ./google-chrome-stable_current_amd64.deb
+apt install chromium-driver
+```
+
 ## Acknowledgments
 
 * This project was heavily inspired by [y0k4i-1337/gsprayer](https://github.com/y0k4i-1337/gsprayer) and [sensepost/gowitness](https://github.com/sensepost/gowitness)

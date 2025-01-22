@@ -200,6 +200,16 @@ func DoFinal(run *Chromedp, navigationCtx context.Context, username string, resu
 			result.Screenshot = base64.StdEncoding.EncodeToString(img)
 		}
 
+		if result.ValidCredential {
+			result.Filename = "valid_" + islazy.SafeFileName(username) + "_" + result.PasswordHash + "." + run.options.Scan.ScreenshotFormat
+			result.Filename = islazy.LeftTrucate(result.Filename, 200)
+			if err := os.WriteFile(
+				filepath.Join(run.options.Scan.ScreenshotPath, result.Filename),
+				img, os.FileMode(0664),
+			); err != nil {
+				return			}
+		}
+
 		// write the screenshot to disk if we have a path
 		if !run.options.Scan.ScreenshotSkipSave {
 			result.Filename = islazy.SafeFileName(username) + "_" + result.PasswordHash + "." + run.options.Scan.ScreenshotFormat
@@ -326,16 +336,28 @@ func (run *Chromedp) Check(username string, password string, thisRunner *runner.
 		if strings.Contains(html, "This browser or app may not be secure") == true {
 			result.Failed = true
 			result.FailedReason = "Browser not secure"
+			logger.Debug("Returning", "reason", result.FailedReason)
 			DoFinal(run, navigationCtx, username, result)
 			return result, nil
 		}
 		if strings.Contains(html, "find your Google Account") == true {
 			result.UserExists = false
+			logger.Debug("Returning", "reason", "Could not find your Google Account")
 			DoFinal(run, navigationCtx, username, result)
 			return result, nil
 		}
 		if strings.Contains(html, "Enter a valid email") == true {
 			result.UserExists = false
+			logger.Debug("Returning", "reason", "Invalid email")
+			DoFinal(run, navigationCtx, username, result)
+			return result, nil
+		}
+		// This service isn't available in your country
+		if strings.Contains(html, "available in your country") == true {
+			result.UserExists = false
+			result.Failed = true
+			result.FailedReason = "Region block"
+			logger.Debug("Returning", "reason", result.FailedReason)
 			DoFinal(run, navigationCtx, username, result)
 			return result, nil
 		}
@@ -438,6 +460,7 @@ func (run *Chromedp) Check(username string, password string, thisRunner *runner.
 		}
 
 		if result.Failed == true || (enumOnly && strings.Contains(result.FailedReason, "Captcha")){
+			logger.Debug("Returning", "reason", result.FailedReason)
 			DoFinal(run, navigationCtx, username, result)
 			return result, nil
 		}
@@ -445,6 +468,7 @@ func (run *Chromedp) Check(username string, password string, thisRunner *runner.
 		if counter >= 10 {
 			result.Failed = true
 			result.FailedReason = "Cannot find password field"
+			logger.Debug("Returning", "reason", result.FailedReason)
 			DoFinal(run, navigationCtx, username, result)
 			return result, nil
 		}
@@ -458,6 +482,7 @@ func (run *Chromedp) Check(username string, password string, thisRunner *runner.
 	if passwd_selector == "" {
 		result.Failed = true
 		result.FailedReason = "Cannot find password field"
+		logger.Debug("Returning", "reason", result.FailedReason)
 		DoFinal(run, navigationCtx, username, result)
 		return result, nil
 	}
@@ -479,6 +504,7 @@ func (run *Chromedp) Check(username string, password string, thisRunner *runner.
 	if err != nil {
 		result.Failed = true
 		result.FailedReason = err.Error()
+		logger.Debug("Returning", "reason", result.FailedReason)
 		DoFinal(run, navigationCtx, username, result)
 		return result, nil
 	}
@@ -496,18 +522,21 @@ func (run *Chromedp) Check(username string, password string, thisRunner *runner.
 		if err := chromedp.Run(navigationCtx, chromedp.OuterHTML(":root", &post_html, chromedp.ByQueryAll)); err != nil {
 			result.Failed = true
 			result.FailedReason = err.Error()
+			logger.Debug("Returning", "reason", result.FailedReason)
 			DoFinal(run, navigationCtx, username, result)
 			return result, nil
 		}
 		if strings.Contains(post_html, "really you trying to sign") == true {
 			result.UserExists = true
 			result.ValidCredential = true
+			logger.Debug("Returning", "reason", result.FailedReason)
 			DoFinal(run, navigationCtx, username, result)
 			return result, nil
 		}
 		if strings.Contains(post_html, "Google sent a notification to your") == true {
 			result.UserExists = true
 			result.ValidCredential = true
+			logger.Debug("Returning", "reason", "credential found")
 			DoFinal(run, navigationCtx, username, result)
 			return result, nil
 		}
@@ -515,6 +544,15 @@ func (run *Chromedp) Check(username string, password string, thisRunner *runner.
 			logger.Debug("Wrong password text found")
 			result.UserExists = true
 			result.ValidCredential = false
+			logger.Debug("Returning", "reason", result.FailedReason)
+			DoFinal(run, navigationCtx, username, result)
+			return result, nil
+		}
+		// This service isn't available in your country
+		if strings.Contains(post_html, "available in your country") == true {
+			result.UserExists = true
+			result.ValidCredential = true
+			logger.Debug("Returning", "reason", "credential found")
 			DoFinal(run, navigationCtx, username, result)
 			return result, nil
 		}
@@ -523,6 +561,7 @@ func (run *Chromedp) Check(username string, password string, thisRunner *runner.
 		if err != nil {
 		    result.Failed = true
 			result.FailedReason = err.Error()
+			logger.Debug("Returning", "reason", result.FailedReason)
 			DoFinal(run, navigationCtx, username, result)
 			return result, nil
 		}
@@ -532,7 +571,6 @@ func (run *Chromedp) Check(username string, password string, thisRunner *runner.
 			if ex == true && t1 != "" {
 				result.Failed = true
 				result.FailedReason = "Captcha found"
-				logger.Debug("Audio captcha found")
 			}
 		})
 
@@ -580,6 +618,7 @@ func (run *Chromedp) Check(username string, password string, thisRunner *runner.
 		}
 
 		if result.Failed == true {
+			logger.Debug("Returning", "reason", result.FailedReason)
 			DoFinal(run, navigationCtx, username, result)
 			return result, nil
 		}
@@ -587,6 +626,7 @@ func (run *Chromedp) Check(username string, password string, thisRunner *runner.
 		if good_to_go == true {
 			result.UserExists = true
 			result.ValidCredential = false
+			logger.Debug("Returning", "reason", result.FailedReason)
 			DoFinal(run, navigationCtx, username, result)
 			return result, nil
 		}
