@@ -3,8 +3,22 @@ name: Go Install Check
 on:
   push:
     branches: [main]
+    paths-ignore:
+        - .gitignore
+        - README.md
+        - LICENSE
+        - TODO
+        - Dockerfile
+
   pull_request:
     branches: [main]
+    paths-ignore:
+        - .gitignore
+        - README.md
+        - LICENSE
+        - TODO
+        - Dockerfile
+
   schedule:
     - cron: "0 0 * * 1"
   workflow_dispatch:
