@@ -135,10 +135,20 @@ You can start the doxycannon and use the `sprayshark` with parameter `--proxy so
 
 Follows the suggest commands to install linux environment
 
+### Installing Chrome and Chrome Driver
+
 ```
 wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
 apt install ./google-chrome-stable_current_amd64.deb
 apt install chromium-driver
+```
+
+### Installing Go v1.23.5
+
+```
+wget https://go.dev/dl/go1.23.5.linux-amd64.tar.gz
+rm -rf /usr/local/go && tar -C /usr/local -xzf go1.23.5.linux-amd64.tar.gz
+rm -rf /usr/bin/go && ln -s /usr/local/go/bin/go /usr/bin/go
 ```
 
 ## Acknowledgments
