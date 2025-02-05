@@ -14,6 +14,7 @@ import (
     driver "github.com/helviojunior/sprayshark/pkg/runner/drivers"
     "github.com/helviojunior/sprayshark/pkg/writers"
     "github.com/helviojunior/sprayshark/pkg/readers"
+    "gorm.io/gorm"
     "github.com/spf13/cobra"
 )
 
@@ -23,6 +24,53 @@ var sprayOptions = runner.UserOptions{}
 var scanWriters = []writers.Writer{}
 var scanDriver runner.Driver
 var scanRunner *runner.Runner
+
+func AddCred(conn *gorm.DB, u string, p string) {
+    i := true
+    if conn != nil {
+        response := conn.Raw("SELECT count(id) as count from results WHERE failed = 0 AND user = ? AND valid_credential = 1", u)
+        if response != nil {
+            var cnt int
+            _ = response.Row().Scan(&cnt)
+            i = (cnt == 0)
+            if cnt > 0 {
+                log.Info("[Credential already found]", "user", u)
+            }
+        }
+        if i {
+            response := conn.Raw("SELECT count(id) as count from results WHERE failed = 0 AND user = ? AND password = ? AND password != ''", u, p)
+            if response != nil {
+                var cnt int
+                _ = response.Row().Scan(&cnt)
+                i = (cnt == 0)
+                if cnt > 0 {
+                    log.Debug("[already tested, same password]", "user", u, "pass", p)
+                }
+            }
+        }
+        if i {
+            response := conn.Raw("SELECT count(id) as count from results WHERE failed = 0 AND user = ? AND user_exists = 0", u)
+            if response != nil {
+                var cnt int
+                _ = response.Row().Scan(&cnt)
+                i = (cnt == 0)
+                if cnt > 0 {
+                    log.Debug("[already tested, user not found]", "user", u)
+                }
+            }
+        }
+        
+    }
+
+    if i {
+        scanRunner.Targets <- runner.Credential{
+            Username: u,
+            Password: p,
+        }
+    }else{
+        scanRunner.AddSkipped()
+    }
+}
 
 var scanCmd = &cobra.Command{
     Use:   "spray",
@@ -41,6 +89,7 @@ multiple writers using the _--writer-*_ flags (see --help).
    - sprayshark spray -u test@helviojunior.com.br -p Test@123 --write-jsonl
    - sprayshark spray -U emails.txt -p Test@123 --save-content --write-db
    - sprayshark spray -U emails.txt -P passwords.txt
+   - sprayshark spray -C credentials.txt -D ':'
    - sprayshark spray -U emails.txt -P passwords.txt --proxy socks4://127.0.0.1:1337 --write-all-screenshots
    - cat targets.txt | sprayshark spray usernames - -p Test@123 --write-db --write-jsonl`,
     PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
@@ -133,23 +182,31 @@ multiple writers using the _--writer-*_ flags (see --help).
         return nil
     },
     PreRunE: func(cmd *cobra.Command, args []string) error {
-        if sprayOptions.Username == "" && fileCmdOptions.UserFile == "" {
+        if sprayOptions.Username == "" && fileCmdOptions.UserFile == "" && fileCmdOptions.UserPassFile == "" {
             return errors.New("a username or username file must be specified")
         }
 
-        if fileCmdOptions.UserFile != "" {
-            if fileCmdOptions.UserFile != "-" && !islazy.FileExists(fileCmdOptions.UserFile) {
-                return errors.New("usernames file is not readable")
+        if fileCmdOptions.UserPassFile != "" {
+            if !islazy.FileExists(fileCmdOptions.UserPassFile) {
+                return errors.New("credentials file file is not readable")
             }
-        }
 
-        if sprayOptions.Password == "" && fileCmdOptions.PassFile == "" {
-            return errors.New("a password or password file must be specified")
-        }
+        }else{
 
-        if fileCmdOptions.PassFile != "" {
-            if !islazy.FileExists(fileCmdOptions.PassFile) {
-                return errors.New("passwords file is not readable")
+            if fileCmdOptions.UserFile != "" {
+                if fileCmdOptions.UserFile != "-" && !islazy.FileExists(fileCmdOptions.UserFile) {
+                    return errors.New("usernames file is not readable")
+                }
+            }
+
+            if sprayOptions.Password == "" && fileCmdOptions.PassFile == "" {
+                return errors.New("a password or password file must be specified")
+            }
+
+            if fileCmdOptions.PassFile != "" {
+                if !islazy.FileExists(fileCmdOptions.PassFile) {
+                    return errors.New("passwords file is not readable")
+                }
             }
         }
 
@@ -160,91 +217,62 @@ multiple writers using the _--writer-*_ flags (see --help).
 
         users := []string{}
         passwords := []string{}
+        creds := []runner.Credential{}
         reader := readers.NewFileReader(fileCmdOptions)
 
-        if fileCmdOptions.UserFile != "" {
-            log.Debugf("Reading users file: %s", fileCmdOptions.UserFile)
-            if err := reader.ReadEmails(&users); err != nil {
-                log.Error("error in reader.Read", "err", err)
-                os.Exit(2)
-            }
-            
-        }else{
-            m, err := mail.ParseAddress(sprayOptions.Username)
-            if err != nil {
-                log.Error("invalid user email", "e-mail", sprayOptions.Username, "err", err)
-                os.Exit(2)
-            }
-            users = append(users, m.Address)
-        }
-        log.Debugf("Loaded %d user(s)", len(users))
-
-        if fileCmdOptions.PassFile != "" {
-            log.Debugf("Reading passwords file: %s", fileCmdOptions.PassFile)
-            if err := reader.ReadPasswords(&passwords); err != nil {
+        if fileCmdOptions.UserPassFile != "" {
+            log.Debugf("Reading credentials file: %s", fileCmdOptions.UserPassFile)
+            if err := reader.ReadCreds(&creds, fileCmdOptions.Delimiter); err != nil {
                 log.Error("error in reader.Read", "err", err)
                 os.Exit(2)
             }   
-        }else{
-            passwords = append(passwords, sprayOptions.Password)
-        }
-        log.Debugf("Loaded %d password(s)", len(passwords))
 
-        log.Infof("Spraying %d credentials", len(passwords) * len(users))
+            log.Infof("Spraying %d credentials", len(creds))
+        }else{
+            if fileCmdOptions.UserFile != "" {
+                log.Debugf("Reading users file: %s", fileCmdOptions.UserFile)
+                if err := reader.ReadEmails(&users); err != nil {
+                    log.Error("error in reader.Read", "err", err)
+                    os.Exit(2)
+                }
+                
+            }else{
+                m, err := mail.ParseAddress(sprayOptions.Username)
+                if err != nil {
+                    log.Error("invalid user email", "e-mail", sprayOptions.Username, "err", err)
+                    os.Exit(2)
+                }
+                users = append(users, m.Address)
+            }
+            log.Debugf("Loaded %d user(s)", len(users))
+
+            if fileCmdOptions.PassFile != "" {
+                log.Debugf("Reading passwords file: %s", fileCmdOptions.PassFile)
+                if err := reader.ReadPasswords(&passwords); err != nil {
+                    log.Error("error in reader.Read", "err", err)
+                    os.Exit(2)
+                }   
+            }else{
+                passwords = append(passwords, sprayOptions.Password)
+            }
+            log.Debugf("Loaded %d password(s)", len(passwords))
+
+            log.Infof("Spraying %d credentials", len(passwords) * len(users))
+        }
 
         // Check runned items
         conn, _ := database.Connection("sqlite:///" + opts.Writer.UserPath +"/.sprayshark.db", true, false)
 
         go func() {
             defer close(scanRunner.Targets)
-            for _, p := range passwords {
-                for _, u := range users {
-
-                    i := true
-                    if conn != nil {
-                        response := conn.Raw("SELECT count(id) as count from results WHERE failed = 0 AND user = ? AND valid_credential = 1", u)
-                        if response != nil {
-                            var cnt int
-                            _ = response.Row().Scan(&cnt)
-                            i = (cnt == 0)
-                            if cnt > 0 {
-                                log.Info("[Credential already found]", "user", u)
-                            }
-                        }
-                        if i {
-                            response := conn.Raw("SELECT count(id) as count from results WHERE failed = 0 AND user = ? AND password = ? AND password != ''", u, p)
-                            if response != nil {
-                                var cnt int
-                                _ = response.Row().Scan(&cnt)
-                                i = (cnt == 0)
-                                if cnt > 0 {
-                                    log.Debug("[already tested, same password]", "user", u, "pass", p)
-                                }
-                            }
-                        }
-                        if i {
-                            response := conn.Raw("SELECT count(id) as count from results WHERE failed = 0 AND user = ? AND user_exists = 0", u)
-                            if response != nil {
-                                var cnt int
-                                _ = response.Row().Scan(&cnt)
-                                i = (cnt == 0)
-                                if cnt > 0 {
-                                    log.Debug("[already tested, user not found]", "user", u)
-                                }
-                            }
-                        }
-                        
-                            
-                        
-                    }
-
-                    if i {
-                        scanRunner.Targets <- runner.Credential{
-                            Username: u,
-                            Password: p,
-                        }
-                    }else{
-                        scanRunner.AddSkipped()
+            if len(creds) > 0 {
+                for _, cred := range creds {
+                    AddCred(conn, cred.Username, cred.Password)
+                }
+            }else {
+                for _, p := range passwords {
+                    for _, u := range users {
+                        AddCred(conn, u, p)
                     }
                 }
             }
@@ -282,7 +310,10 @@ func init() {
     scanCmd.Flags().StringVarP(&sprayOptions.Password, "password", "p", "", "Single password")
     scanCmd.Flags().StringVarP(&fileCmdOptions.UserFile, "usernames", "U", "", "File containing usernames")
     scanCmd.Flags().StringVarP(&fileCmdOptions.PassFile, "passwords", "P", "", "File containing passwords")
+    scanCmd.Flags().StringVarP(&fileCmdOptions.UserPassFile, "credential", "C", "", "File containing username and passwords (default delimiter is ':', change with -d)")
         
+    scanCmd.Flags().StringVarP(&fileCmdOptions.Delimiter, "delimiter", "d", ":", "Use DELIM instead of : for field delimiter (just used together with -C)")
+    
     // Logging control for subcommands
     scanCmd.Flags().BoolVar(&opts.Logging.LogScanErrors, "log-scan-errors", false, "Log scan errors (timeouts, DNS errors, etc.) to stderr (warning: can be verbose!)")
 
