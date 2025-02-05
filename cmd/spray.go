@@ -218,6 +218,7 @@ multiple writers using the _--writer-*_ flags (see --help).
         users := []string{}
         passwords := []string{}
         creds := []runner.Credential{}
+        total := 0
         reader := readers.NewFileReader(fileCmdOptions)
 
         if fileCmdOptions.UserPassFile != "" {
@@ -228,6 +229,7 @@ multiple writers using the _--writer-*_ flags (see --help).
             }   
 
             log.Infof("Spraying %d credentials", len(creds))
+            total = len(creds)
         }else{
             if fileCmdOptions.UserFile != "" {
                 log.Debugf("Reading users file: %s", fileCmdOptions.UserFile)
@@ -258,6 +260,7 @@ multiple writers using the _--writer-*_ flags (see --help).
             log.Debugf("Loaded %d password(s)", len(passwords))
 
             log.Infof("Spraying %d credentials", len(passwords) * len(users))
+            total = len(passwords) * len(users)
         }
 
         // Check runned items
@@ -278,7 +281,7 @@ multiple writers using the _--writer-*_ flags (see --help).
             }
         }()
 
-        status := scanRunner.Run(len(passwords) * len(users))
+        status := scanRunner.Run(total)
         scanRunner.Close()
 
         st := "Execution statistics\n"
