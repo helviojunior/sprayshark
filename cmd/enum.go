@@ -112,6 +112,14 @@ multiple writers using the _--writer-*_ flags (see --help).
             enumWriters = append(enumWriters, w)
         }
 
+        if opts.Writer.ELastic {
+            w, err := writers.NewElasticWriter(opts.Scan.ScreenshotPath, opts.Writer.ELasticURI)
+            if err != nil {
+                return err
+            }
+            scanWriters = append(scanWriters, w)
+        }
+
         if opts.Writer.None {
             w, err := writers.NewNoneWriter()
             if err != nil {
@@ -276,4 +284,8 @@ func init() {
     enumCmd.Flags().BoolVar(&opts.Writer.Jsonl, "write-jsonl", false, "Write results as JSON lines")
     enumCmd.Flags().StringVar(&opts.Writer.JsonlFile, "write-jsonl-file", "sprayshark.jsonl", "The file to write JSON lines to")
     enumCmd.Flags().BoolVar(&opts.Writer.None, "write-none", false, "Use an empty writer to silence warnings")
+
+    enumCmd.PersistentFlags().BoolVar(&opts.Writer.ELastic, "write-elastic", false, "Write results to a SQLite database")
+    enumCmd.PersistentFlags().StringVar(&opts.Writer.ELasticURI, "write-elasticsearch-uri", "http://localhost:9200/intelparser", "The elastic search URI to use. (e.g., http://user:pass@host:9200/index)")
+
 }

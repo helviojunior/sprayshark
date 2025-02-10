@@ -18,22 +18,22 @@ type Result struct {
 
 	TestId                string    `json:"test_id"`
 	User                  string    `json:"username"`
-	Password              string    `json:"password"`
+	Password              string    `json:"password,omitempty"`
 	PasswordHash          string    `json:"password_hash"`
 	ProbedAt              time.Time `json:"probed_at"`
 
 	UserExists       	  bool   	`json:"user_exists"`
 	ValidCredential    	  bool   	`json:"valid_credential"`
 
-	Screenshot            string    `json:"screenshot"`
-	HTML                  string    `json:"html" gorm:"index"`
+	Screenshot            string    `json:"screenshot,omitempty"`
+	HTML                  string    `json:"html,omitempty" gorm:"index"`
 
 	// Name of the screenshot file
 	Filename string `json:"file_name"`
 
 	// Failed flag set if the result should be considered failed
 	Failed       bool   `json:"failed"`
-	FailedReason string `json:"failed_reason"`
+	FailedReason string `json:"failed_reason,omitempty"`
 
 	Network []NetworkLog `json:"network" gorm:"constraint:OnDelete:CASCADE"`
 

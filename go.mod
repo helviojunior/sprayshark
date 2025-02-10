@@ -9,9 +9,10 @@ require (
 	github.com/charmbracelet/log v0.4.0
 	github.com/chromedp/cdproto v0.0.0-20250113203156-3ff4b409e0d4
 	github.com/chromedp/chromedp v0.11.2
+	github.com/elastic/go-elasticsearch/v8 v8.17.0
 	github.com/glebarez/sqlite v1.11.0
-	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/cobra v1.8.1
+	golang.org/x/sys v0.28.0
 	gorm.io/driver/mysql v1.5.7
 	gorm.io/driver/postgres v1.5.11
 	gorm.io/gorm v1.25.12
@@ -27,8 +28,11 @@ require (
 	github.com/chromedp/sysutil v1.1.0 // indirect
 	github.com/dlclark/regexp2 v1.11.4 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
+	github.com/elastic/elastic-transport-go/v8 v8.6.0 // indirect
 	github.com/glebarez/go-sqlite v1.22.0 // indirect
 	github.com/go-logfmt/logfmt v0.6.0 // indirect
+	github.com/go-logr/logr v1.4.2 // indirect
+	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-sql-driver/mysql v1.8.1 // indirect
 	github.com/gobwas/httphead v0.1.0 // indirect
 	github.com/gobwas/pool v0.2.1 // indirect
@@ -56,11 +60,13 @@ require (
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/yuin/goldmark v1.7.8 // indirect
 	github.com/yuin/goldmark-emoji v1.0.4 // indirect
+	go.opentelemetry.io/otel v1.28.0 // indirect
+	go.opentelemetry.io/otel/metric v1.28.0 // indirect
+	go.opentelemetry.io/otel/trace v1.28.0 // indirect
 	golang.org/x/crypto v0.31.0 // indirect
 	golang.org/x/exp v0.0.0-20241215155358-4a5509556b9e // indirect
 	golang.org/x/net v0.33.0 // indirect
 	golang.org/x/sync v0.10.0 // indirect
-	golang.org/x/sys v0.28.0 // indirect
 	golang.org/x/term v0.27.0 // indirect
 	golang.org/x/text v0.21.0 // indirect
 	modernc.org/libc v1.61.4 // indirect

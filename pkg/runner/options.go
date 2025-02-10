@@ -32,6 +32,8 @@ type Writer struct {
     CsvFile   string
     Jsonl     bool
     JsonlFile string
+    ELastic   bool
+    ELasticURI string
     Stdout    bool
     None      bool
 }

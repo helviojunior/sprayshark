@@ -7,6 +7,8 @@ import (
 	"path/filepath"
 	"strings"
 	"unicode"
+	"encoding/base64"
+	"io/ioutil"
 )
 
 // CreateDir creates a directory if it does not exist, returning the final
@@ -111,4 +113,27 @@ func MoveFile(sourcePath, destPath string) error {
 	}
 
 	return nil
+}
+
+func EncodeFileToBase64(filename string) (string, error) {
+
+	var file *os.File
+	var err error
+
+	file, err = os.Open(filename)
+	if err != nil {
+		return "", err
+	}
+	defer file.Close()
+
+	// Lê o conteúdo do arquivo
+	data, err := ioutil.ReadAll(file)
+	if err != nil {
+		return "", err
+	}
+
+	// Codifica em Base64
+	encoded := base64.StdEncoding.EncodeToString(data)
+	return encoded, nil
+
 }
