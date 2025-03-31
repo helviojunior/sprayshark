@@ -536,6 +536,23 @@ func (run *Chromedp) Check(username string, password string, thisRunner *runner.
 		if strings.Contains(post_html, "Google sent a notification to your") == true {
 			result.UserExists = true
 			result.ValidCredential = true
+			result.HasMFA = true
+			logger.Debug("Returning", "reason", "credential found")
+			DoFinal(run, navigationCtx, username, result)
+			return result, nil
+		}
+		if strings.Contains(post_html, "Get a verification code") == true {
+			result.UserExists = true
+			result.ValidCredential = true
+			result.HasMFA = true
+			logger.Debug("Returning", "reason", "credential found")
+			DoFinal(run, navigationCtx, username, result)
+			return result, nil
+		}
+		if strings.Contains(post_html, "Choose how you want to sign in") == true {
+			result.UserExists = true
+			result.ValidCredential = true
+			result.HasMFA = true
 			logger.Debug("Returning", "reason", "credential found")
 			DoFinal(run, navigationCtx, username, result)
 			return result, nil

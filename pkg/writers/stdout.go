@@ -25,7 +25,11 @@ func (s *StdoutWriter) Write(result *models.Result) error {
 		return nil
 	}
 	if result.ValidCredential {
-		logger.Warnf("[Credential found] %s:%s", result.User, result.Password)
+		if result.HasMFA {
+			logger.Warnf("[Credential found with MFA] %s:%s", result.User, result.Password)
+		}else {
+			logger.Warnf("[Credential found] %s:%s", result.User, result.Password)
+		}
 		return nil
 	}
 	if result.UserExists {

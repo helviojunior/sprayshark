@@ -24,6 +24,7 @@ type Result struct {
 
 	UserExists       	  bool   	`json:"user_exists"`
 	ValidCredential    	  bool   	`json:"valid_credential"`
+	HasMFA 		    	  bool   	`json:"has_mfa"`
 
 	Screenshot            string    `json:"screenshot,omitempty"`
 	HTML                  string    `json:"html,omitempty" gorm:"index"`
