@@ -6,6 +6,7 @@ on:
     paths-ignore:
         - .gitignore
         - README.md
+        - INSTALL.md
         - LICENSE
         - TODO
         - Dockerfile
@@ -15,6 +16,7 @@ on:
     paths-ignore:
         - .gitignore
         - README.md
+        - INSTALL.md
         - LICENSE
         - TODO
         - Dockerfile
