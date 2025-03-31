@@ -17,27 +17,10 @@ Available modules:
 * [x] And much more!  
 
 
-# Build
+## Get last release
 
-Clone the repository and build the project with Golang:
+Check how to get last release by your Operational Systems procedures here [INSTALL.md](https://github.com/helviojunior/sprayshark/blob/main/INSTALL.md)
 
-```
-git clone https://github.com/helviojunior/sprayshark.git
-cd sprayshark
-go get ./...
-go build
-```
-
-If you want to update go.sum file just run the command `go mod tidy`.
-
-# Installing system wide
-
-After build run the commands bellow
-
-```
-go install .
-ln -s /root/go/bin/sprayshark /usr/bin/sprayshark
-```
 
 # Utilization
 
