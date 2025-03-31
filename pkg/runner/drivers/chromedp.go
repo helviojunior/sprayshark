@@ -526,13 +526,6 @@ func (run *Chromedp) Check(username string, password string, thisRunner *runner.
 			DoFinal(run, navigationCtx, username, result)
 			return result, nil
 		}
-		if strings.Contains(post_html, "really you trying to sign") == true {
-			result.UserExists = true
-			result.ValidCredential = true
-			logger.Debug("Returning", "reason", result.FailedReason)
-			DoFinal(run, navigationCtx, username, result)
-			return result, nil
-		}
 		if strings.Contains(post_html, "Google sent a notification to your") == true {
 			result.UserExists = true
 			result.ValidCredential = true
@@ -554,6 +547,30 @@ func (run *Chromedp) Check(username string, password string, thisRunner *runner.
 			result.ValidCredential = true
 			result.HasMFA = true
 			logger.Debug("Returning", "reason", "credential found")
+			DoFinal(run, navigationCtx, username, result)
+			return result, nil
+		}
+		if strings.Contains(post_html, "really you trying to sign") == true {
+			result.UserExists = true
+			result.ValidCredential = true
+			result.HasMFA = true
+			logger.Debug("Returning", "reason", result.FailedReason)
+			DoFinal(run, navigationCtx, username, result)
+			return result, nil
+		}
+		if strings.Contains(post_html, "Personal info") == true {
+			result.UserExists = true
+			result.ValidCredential = true
+			result.HasMFA = false
+			logger.Debug("Returning", "reason", result.FailedReason)
+			DoFinal(run, navigationCtx, username, result)
+			return result, nil
+		}
+		if strings.Contains(post_html, "Manage your info") == true {
+			result.UserExists = true
+			result.ValidCredential = true
+			result.HasMFA = false
+			logger.Debug("Returning", "reason", result.FailedReason)
 			DoFinal(run, navigationCtx, username, result)
 			return result, nil
 		}
