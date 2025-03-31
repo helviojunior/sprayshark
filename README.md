@@ -59,6 +59,7 @@ Examples:
    - sprayshark spray -u test@helviojunior.com.br -p Test@123 --write-jsonl
    - sprayshark spray -U emails.txt -p Test@123 --save-content --write-db
    - sprayshark spray -U emails.txt -P passwords.txt
+   - sprayshark spray -C credentials.txt -D ':'
    - sprayshark spray -U emails.txt -P passwords.txt --proxy socks4://127.0.0.1:1337 --write-all-screenshots
    - cat targets.txt | sprayshark spray usernames - -p Test@123 --write-db --write-jsonl
 
