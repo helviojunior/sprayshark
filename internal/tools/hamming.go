@@ -1,4 +1,4 @@
-package islazy
+package tools
 
 import (
 	"encoding/hex"

@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"os"
 
-	"github.com/helviojunior/sprayshark/internal/islazy"
+	"github.com/helviojunior/sprayshark/internal/tools"
 	"github.com/helviojunior/sprayshark/pkg/models"
 )
 
@@ -16,7 +16,7 @@ type JsonWriter struct {
 // NewJsonWriter return a new Json lines writer
 func NewJsonWriter(destination string) (*JsonWriter, error) {
 	// check if the destination exists, if not, create it
-	dst, err := islazy.CreateFileWithDir(destination)
+	dst, err := tools.CreateFileWithDir(destination)
 	if err != nil {
 		return nil, err
 	}

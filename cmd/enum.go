@@ -7,7 +7,7 @@ import (
     "os"
 
     "github.com/helviojunior/sprayshark/internal/ascii"
-    "github.com/helviojunior/sprayshark/internal/islazy"
+    "github.com/helviojunior/sprayshark/internal/tools"
     "github.com/helviojunior/sprayshark/pkg/log"
     "github.com/helviojunior/sprayshark/pkg/runner"
     "github.com/helviojunior/sprayshark/pkg/database"
@@ -146,7 +146,7 @@ multiple writers using the _--writer-*_ flags (see --help).
         }
 
         if enumFileOptions.UserFile != "" {
-            if enumFileOptions.UserFile != "-" && !islazy.FileExists(enumFileOptions.UserFile) {
+            if enumFileOptions.UserFile != "-" && !tools.FileExists(enumFileOptions.UserFile) {
                 return errors.New("usernames file is not readable")
             }
         }

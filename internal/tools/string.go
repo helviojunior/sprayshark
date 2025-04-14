@@ -1,4 +1,4 @@
-package islazy
+package tools
 
 // LeftTrucate a string if its more than max
 func LeftTrucate(s string, max int) string {

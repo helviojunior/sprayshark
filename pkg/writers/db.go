@@ -3,7 +3,7 @@ package writers
 import (
 	"sync"
 
-	"github.com/helviojunior/sprayshark/internal/islazy"
+	"github.com/helviojunior/sprayshark/internal/tools"
 	"github.com/helviojunior/sprayshark/pkg/database"
 	//"github.com/helviojunior/sprayshark/pkg/log"
 	"github.com/helviojunior/sprayshark/pkg/models"
@@ -17,7 +17,7 @@ type DbWriter struct {
 	URI           string
 	conn          *gorm.DB
 	mutex         sync.Mutex
-	hammingGroups []islazy.HammingGroup
+	hammingGroups []tools.HammingGroup
 }
 
 // NewDbWriter initialises a database writer
@@ -31,7 +31,7 @@ func NewDbWriter(uri string, debug bool) (*DbWriter, error) {
 		URI:           uri,
 		conn:          c,
 		mutex:         sync.Mutex{},
-		hammingGroups: []islazy.HammingGroup{},
+		hammingGroups: []tools.HammingGroup{},
 	}, nil
 }
 

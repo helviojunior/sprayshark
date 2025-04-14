@@ -9,7 +9,7 @@ import (
 	"strings"
 	"net/mail"
 
-	//"github.com/helviojunior/sprayshark/internal/islazy"
+	//"github.com/helviojunior/sprayshark/internal/tools"
 	"github.com/helviojunior/sprayshark/pkg/runner"
 )
 

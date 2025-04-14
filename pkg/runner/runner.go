@@ -13,7 +13,7 @@ import (
 	//"strings"
 	"math/rand/v2"
 
-	"github.com/helviojunior/sprayshark/internal/islazy"
+	"github.com/helviojunior/sprayshark/internal/tools"
 	"github.com/helviojunior/sprayshark/pkg/models"
 	"github.com/helviojunior/sprayshark/pkg/writers"
 )
@@ -116,7 +116,7 @@ func (st *Status) AddResult(result *models.Result) {
 // It's up to the caller to call Close() on the runner
 func NewRunner(logger *slog.Logger, driver Driver, opts Options, writers []writers.Writer) (*Runner, error) {
 	if !opts.Scan.ScreenshotSkipSave {
-		screenshotPath, err := islazy.CreateDir(opts.Scan.ScreenshotPath)
+		screenshotPath, err := tools.CreateDir(opts.Scan.ScreenshotPath)
 		if err != nil {
 			return nil, err
 		}
@@ -127,7 +127,7 @@ func NewRunner(logger *slog.Logger, driver Driver, opts Options, writers []write
 	}
 
 	// screenshot format check
-	if !islazy.SliceHasStr([]string{"jpeg", "png"}, opts.Scan.ScreenshotFormat) {
+	if !tools.SliceHasStr([]string{"jpeg", "png"}, opts.Scan.ScreenshotFormat) {
 		return nil, errors.New("invalid screenshot format")
 	}
 

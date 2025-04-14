@@ -7,7 +7,7 @@ import (
     "os"
 
     "github.com/helviojunior/sprayshark/internal/ascii"
-    "github.com/helviojunior/sprayshark/internal/islazy"
+    "github.com/helviojunior/sprayshark/internal/tools"
     "github.com/helviojunior/sprayshark/pkg/log"
     "github.com/helviojunior/sprayshark/pkg/runner"
     "github.com/helviojunior/sprayshark/pkg/database"
@@ -195,14 +195,14 @@ multiple writers using the _--writer-*_ flags (see --help).
         }
 
         if fileCmdOptions.UserPassFile != "" {
-            if !islazy.FileExists(fileCmdOptions.UserPassFile) {
+            if !tools.FileExists(fileCmdOptions.UserPassFile) {
                 return errors.New("credentials file file is not readable")
             }
 
         }else{
 
             if fileCmdOptions.UserFile != "" {
-                if fileCmdOptions.UserFile != "-" && !islazy.FileExists(fileCmdOptions.UserFile) {
+                if fileCmdOptions.UserFile != "-" && !tools.FileExists(fileCmdOptions.UserFile) {
                     return errors.New("usernames file is not readable")
                 }
             }
@@ -212,7 +212,7 @@ multiple writers using the _--writer-*_ flags (see --help).
             }
 
             if fileCmdOptions.PassFile != "" {
-                if !islazy.FileExists(fileCmdOptions.PassFile) {
+                if !tools.FileExists(fileCmdOptions.PassFile) {
                     return errors.New("passwords file is not readable")
                 }
             }

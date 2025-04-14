@@ -23,7 +23,7 @@ import (
 	//"github.com/chromedp/cdproto/storage"
 	"github.com/chromedp/chromedp"
 	//"github.com/corona10/goimagehash"
-	"github.com/helviojunior/sprayshark/internal/islazy"
+	"github.com/helviojunior/sprayshark/internal/tools"
 	"github.com/helviojunior/sprayshark/pkg/models"
 	"github.com/helviojunior/sprayshark/pkg/runner"
 )
@@ -201,8 +201,8 @@ func DoFinal(run *Chromedp, navigationCtx context.Context, username string, resu
 		}
 
 		if result.ValidCredential {
-			result.Filename = "valid_" + islazy.SafeFileName(username) + "_" + result.PasswordHash + "." + run.options.Scan.ScreenshotFormat
-			result.Filename = islazy.LeftTrucate(result.Filename, 200)
+			result.Filename = "valid_" + tools.SafeFileName(username) + "_" + result.PasswordHash + "." + run.options.Scan.ScreenshotFormat
+			result.Filename = tools.LeftTrucate(result.Filename, 200)
 			if err := os.WriteFile(
 				filepath.Join(run.options.Scan.ScreenshotPath, result.Filename),
 				img, os.FileMode(0664),
@@ -212,8 +212,8 @@ func DoFinal(run *Chromedp, navigationCtx context.Context, username string, resu
 
 		// write the screenshot to disk if we have a path
 		if !run.options.Scan.ScreenshotSkipSave {
-			result.Filename = islazy.SafeFileName(username) + "_" + result.PasswordHash + "." + run.options.Scan.ScreenshotFormat
-			result.Filename = islazy.LeftTrucate(result.Filename, 200)
+			result.Filename = tools.SafeFileName(username) + "_" + result.PasswordHash + "." + run.options.Scan.ScreenshotFormat
+			result.Filename = tools.LeftTrucate(result.Filename, 200)
 			if err := os.WriteFile(
 				filepath.Join(run.options.Scan.ScreenshotPath, result.Filename),
 				img, os.FileMode(0664),
