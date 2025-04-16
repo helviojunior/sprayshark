@@ -7,7 +7,8 @@ import (
 	"github.com/helviojunior/sprayshark/pkg/database"
 	//"github.com/helviojunior/sprayshark/pkg/log"
 	"github.com/helviojunior/sprayshark/pkg/models"
-	"gorm.io/gorm"
+	"gorm.io/gorm"	
+	"gorm.io/gorm/clause"
 )
 
 var hammingThreshold = 10
@@ -39,7 +40,7 @@ func NewDbWriter(uri string, debug bool) (*DbWriter, error) {
 func (dw *DbWriter) Write(result *models.Result) error {
 	dw.mutex.Lock()
 	defer dw.mutex.Unlock()
-	
+
 	if _, ok := dw.conn.Statement.Clauses["ON CONFLICT"]; !ok {
 		dw.conn = dw.conn.Clauses(clause.OnConflict{UpdateAll: true})
 	}
