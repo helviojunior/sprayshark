@@ -39,6 +39,10 @@ func NewDbWriter(uri string, debug bool) (*DbWriter, error) {
 func (dw *DbWriter) Write(result *models.Result) error {
 	dw.mutex.Lock()
 	defer dw.mutex.Unlock()
+	
+	if _, ok := dw.conn.Statement.Clauses["ON CONFLICT"]; !ok {
+		dw.conn = dw.conn.Clauses(clause.OnConflict{UpdateAll: true})
+	}
 	return dw.conn.Create(result).Error
 }
 
