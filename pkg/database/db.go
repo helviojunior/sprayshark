@@ -6,6 +6,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/glebarez/sqlite"
 	"github.com/helviojunior/sprayshark/pkg/models"
@@ -45,11 +46,14 @@ func Connection(uri string, shouldExist, debug bool) (*gorm.DB, error) {
 			}
 		}
 
+		//config.SkipDefaultTransaction = true
+
 		c, err = gorm.Open(sqlite.Open(db.Host+db.Path+"?cache=shared"), config)
 		if err != nil {
 			return nil, err
 		}
 		c.Exec("PRAGMA foreign_keys = ON")
+		c.Exec("PRAGMA cache_size = 10000")
 	case "postgres":
 		c, err = gorm.Open(postgres.Open(uri), config)
 		if err != nil {
@@ -72,5 +76,30 @@ func Connection(uri string, shouldExist, debug bool) (*gorm.DB, error) {
 		return nil, err
 	}
 
+	//Check if app name was inserted at application info table
+	var count int64
+    if err := c.Model(&Application{}).Count(&count).Error; err != nil {
+        return nil, err
+    }
+
+    if count == 0 {
+        defaultApp := Application{
+            Application:  "sprayshark",
+            CreatedAt: time.Now(),
+        }
+        if err := c.Create(&defaultApp).Error; err != nil {
+            return nil, err
+        }
+    }
+
 	return c, nil
+}
+
+type Application struct {
+	Application           string    `json:"application"`
+	CreatedAt             time.Time `json:"created_at"`
+}
+
+func (Application) TableName() string {
+    return "application_info"
 }
