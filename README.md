@@ -115,26 +115,6 @@ I recomend to use a kind of proxy to work with password spray. An amazing projec
 
 You can start the doxycannon and use the `sprayshark` with parameter `--proxy socks4://127.0.0.1:1337`
 
-## Linux environment
-
-Follows the suggest commands to install linux environment
-
-### Installing Chrome and Chrome Driver
-
-```
-wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-apt install ./google-chrome-stable_current_amd64.deb
-apt install chromium-driver
-```
-
-### Installing Go v1.23.5
-
-```
-wget https://go.dev/dl/go1.23.5.linux-amd64.tar.gz
-rm -rf /usr/local/go && tar -C /usr/local -xzf go1.23.5.linux-amd64.tar.gz
-rm -rf /usr/bin/go && ln -s /usr/local/go/bin/go /usr/bin/go
-```
-
 ## Acknowledgments
 
 * This project was heavily inspired by [y0k4i-1337/gsprayer](https://github.com/y0k4i-1337/gsprayer) and [sensepost/gowitness](https://github.com/sensepost/gowitness)

@@ -2,8 +2,20 @@
 
 ## Linux
 
+
+### Installing Chrome and Chrome Driver
+
+```
+wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+apt install ./google-chrome-stable_current_amd64.deb
+apt install chromium-driver
+```
+
+### Installing SprayShark
+
 ```
 apt install curl jq
+
 
 url=$(curl -s https://api.github.com/repos/helviojunior/sprayshark/releases | jq -r '[ .[] | {id: .id, tag_name: .tag_name, assets: [ .assets[] | select(.name|match("linux-amd64.tar.gz$")) | {name: .name, browser_download_url: .browser_download_url} ]} | select(.assets != []) ] | sort_by(.id) | reverse | first(.[].assets[]) | .browser_download_url')
 
@@ -28,7 +40,7 @@ Note: Just run this command if you need to install HomeBrew to first time
 /bin/bash -c "$(curl -fsSL raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 ```
 
-### Installing PCAP Raptor
+### Installing SprayShark
 
 ```
 brew install curl jq
